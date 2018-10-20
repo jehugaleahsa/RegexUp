@@ -1,2 +1,2 @@
 # RegexUp
-Compose, decompose analyze and normalize regular expressions.
+Compose, decompose, analyze and normalize regular expressions.
