@@ -8,9 +8,9 @@ namespace RegexUp
     /// <summary>
     /// A group delineates subexpressions of a regular expression and can capture the substrings of an input string.
     /// </summary>
-    public interface IGroup : IExpression
+    public interface IGroup : IGroupMember, IQuantifiable
     {
-        void Add(IExpression expression);
+        void Add(IGroupMember expression);
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ namespace RegexUp
         /// <param name="name">An optional name to associate with the capture group.</param>
         /// <param name="expressions">The sub-expressions appearing in the group.</param>
         /// <returns>The capture group.</returns>
-        public static ICaptureGroup Capture(params IExpression[] expressions)
+        public static ICaptureGroup Capture(params IGroupMember[] expressions)
         {
             return Capture(null, expressions);
         }
@@ -70,7 +70,7 @@ namespace RegexUp
         /// <param name="name">An optional name to associate with the capture group.</param>
         /// <param name="expressions">The sub-expressions appearing in the group.</param>
         /// <returns>The capture group.</returns>
-        public static ICaptureGroup Capture(string name, params IExpression[] expressions)
+        public static ICaptureGroup Capture(string name, params IGroupMember[] expressions)
         {
             if (expressions == null)
             {
@@ -122,7 +122,7 @@ namespace RegexUp
         /// Creates a group that is not captured.
         /// </summary>
         /// <returns>The non-capture group.</returns>
-        public static INonCaptureGroup NonCapture(params IExpression[] expressions)
+        public static INonCaptureGroup NonCapture(params IGroupMember[] expressions)
         {
             if (expressions == null)
             {
@@ -164,9 +164,9 @@ namespace RegexUp
         }
     }
 
-    internal abstract class Group : IGroup
+    internal abstract class Group : IGroup, IExpression
     {
-        private readonly List<IExpression> members = new List<IExpression>();
+        private readonly List<IGroupMember> members = new List<IGroupMember>();
 
         protected Group()
         {
@@ -185,11 +185,11 @@ namespace RegexUp
 
         protected virtual string EncodeMembers()
         {
-            var encoded = String.Join(String.Empty, members.Select(m => m.Encode(ExpressionContext.Group)));
+            var encoded = String.Join(String.Empty, members.Cast<IExpression>().Select(m => m.Encode(ExpressionContext.Group)));
             return encoded;
         }
 
-        public void Add(IExpression expression)
+        public void Add(IGroupMember expression)
         {
             if (expression == null)
             {
@@ -198,7 +198,7 @@ namespace RegexUp
             members.Add(expression);
         }
 
-        public override string ToString() => Encode(ExpressionContext.TopLevel);
+        public override string ToString() => Encode(ExpressionContext.Group);
     }
 
     internal sealed class CaptureGroup : Group, ICaptureGroup
@@ -207,8 +207,7 @@ namespace RegexUp
 
         protected override string OnEncode()
         {
-            var parts = new List<string>();
-            parts.Add("(");
+            var parts = new List<string>() { "(" };
             if (Name != null)
             {
                 parts.Add("?<");
@@ -254,9 +253,7 @@ namespace RegexUp
 
         protected override string OnEncode()
         {
-            var parts = new List<string>();
-            parts.Add("(");
-            parts.Add(EncodeOptions(EnabledOptions));
+            var parts = new List<string>() { "(", EncodeOptions(EnabledOptions) };
             if (DisabledOptions != GroupRegexOptions.None)
             {
                 parts.Add("-");

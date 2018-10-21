@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace RegexUp
 {
     /// <summary>
     /// Defines a series of valid characters.
     /// </summary>
-    public interface ICharacterGroup : IExpression
+    public interface ICharacterGroup
     {
     }
 
     /// <summary>
     /// Defines a series a valid characters.
     /// </summary>
-    public sealed class CharacterGroup : ICharacterGroup
+    public sealed class CharacterGroup : ICharacterGroup, IGroupMember, IQuantifiable, IExpression
     {
         /// <summary>
         /// Creates a new character group with the given sub-expressions.
@@ -81,8 +80,7 @@ namespace RegexUp
             {
                 return String.Empty;
             }
-            var parts = new List<string>();
-            parts.Add("[");
+            var parts = new List<string>() { "[" };
             if (IsNegated)
             {
                 parts.Add("^");
@@ -90,13 +88,13 @@ namespace RegexUp
             for (int memberIndex = 0; memberIndex != members.Count; ++memberIndex)
             {
                 var member = members[memberIndex];
-                parts.Add(member.Encode(ExpressionContext.CharacterGroup));
+                parts.Add(((IExpression)member).Encode(ExpressionContext.CharacterGroup));
             }
             parts.Add("]");
             var encoded = String.Join(String.Empty, parts);
             return encoded;
         }
 
-        public override string ToString() => Encode(ExpressionContext.TopLevel);
+        public override string ToString() => Encode(ExpressionContext.Group);
     }
 }

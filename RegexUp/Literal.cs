@@ -5,7 +5,7 @@ namespace RegexUp
     /// <summary>
     /// Provides factory methods for creating literals.
     /// </summary>
-    public sealed class Literal : ILiteral, ICharacterCategory, ICharacterGroupMember, ICharacterEscape, IAnchor, IExpression
+    public sealed class Literal : ILiteral, ICharacterCategory, IGroupMember, ICharacterGroupMember, ICharacterEscape, IAnchor, IQuantifiable, IExpression
     {
         /// <summary>
         /// Creates a literal for the given value, escaping special characters, if necessary.

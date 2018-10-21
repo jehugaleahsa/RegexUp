@@ -7,7 +7,7 @@ namespace RegexUp
     /// <summary>
     /// Defines a range of characters.
     /// </summary>
-    public interface IRange : ICharacterGroupMember, IExpression
+    public interface IRange : ICharacterGroupMember
     {
         /// <summary>
         /// Gets the first character in the range.
@@ -28,7 +28,7 @@ namespace RegexUp
     /// <summary>
     /// Porvides factory methods for creating character ranges.
     /// </summary>
-    public sealed class Range : IRange
+    public sealed class Range : IRange, IExpression
     {
         /// <summary>
         /// Creates a range of characters.
@@ -64,7 +64,7 @@ namespace RegexUp
             var parts = new List<string>() { First.ToString(), "-", Last.ToString() };
             if (ExcludedGroup != null)
             {
-                parts.Add(ExcludedGroup.Encode(context));
+                parts.Add(((IExpression)ExcludedGroup).Encode(context));
             }
             var encoded = String.Join(String.Empty, parts);
             return encoded;

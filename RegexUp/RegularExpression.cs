@@ -15,7 +15,7 @@ namespace RegexUp
         /// </summary>
         /// <param name="expressions">The subexpressions making the regular expression.</param>
         /// <returns>The regular expression.</returns>
-        public static RegularExpression Of(params IExpression[] expressions)
+        public static RegularExpression Of(params IGroupMember[] expressions)
         {
             if (expressions == null)
             {
@@ -29,13 +29,13 @@ namespace RegexUp
             return regularExpression;
         }
 
-        private readonly List<IExpression> expressions = new List<IExpression>();
+        private readonly List<IGroupMember> expressions = new List<IGroupMember>();
 
         /// <summary>
         /// Adds the given expression to the regular expression.
         /// </summary>
         /// <param name="expression">The expression to add.</param>
-        public void Add(IExpression expression)
+        public void Add(IGroupMember expression)
         {
             if (expression == null)
             {
@@ -71,7 +71,7 @@ namespace RegexUp
 
         private string EncodeExpressions()
         {
-            var encoded = String.Join(String.Empty, expressions.Select(e => e.Encode(ExpressionContext.TopLevel)));
+            var encoded = String.Join(String.Empty, expressions.Cast<IExpression>().Select(e => e.Encode(ExpressionContext.Group)));
             return encoded;
         }
 
