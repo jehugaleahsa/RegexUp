@@ -11,12 +11,13 @@ namespace RegexUp
 
         protected override string OnEncode()
         {
-            var parts = new List<string>() { "(", EncodeOptions(EnabledOptions) };
+            var parts = new List<string>() { "(?", EncodeOptions(EnabledOptions) };
             if (DisabledOptions != GroupRegexOptions.None)
             {
                 parts.Add("-");
                 parts.Add(EncodeOptions(DisabledOptions));
             }
+            parts.Add(":");
             parts.Add(EncodeMembers());
             parts.Add(")");
             var encoded = String.Join(String.Empty, parts);

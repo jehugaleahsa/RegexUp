@@ -7,14 +7,17 @@ namespace RegexUp
     {
         public string Name { get; set; }
 
+        public bool UseQuotes { get; set; }
+
         protected override string OnEncode()
         {
             var parts = new List<string>() { "(" };
             if (Name != null)
             {
-                parts.Add("?<");
+                parts.Add("?");
+                parts.Add(UseQuotes ? "'" : "<");
                 parts.Add(Name);
-                parts.Add(">");
+                parts.Add(UseQuotes ? "'" : ">");
             }
             parts.Add(EncodeMembers());
             parts.Add(")");

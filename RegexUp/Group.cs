@@ -19,56 +19,57 @@ namespace RegexUp
             /// Creates a new group that captures its subexpressions by number or name (optional).
             /// </summary>
             /// <param name="name">An optional name to associate with the capture group.</param>
-            /// <param name="expressions">The sub-expressions appearing in the group.</param>
+            /// <param name="members">The sub-expressions appearing in the group.</param>
             /// <returns>The capture group.</returns>
-            public static ICaptureGroup Of(params IGroupMember[] expressions)
+            public static ICaptureGroup Of(params IGroupMember[] members)
             {
-                return From(null, expressions);
+                return From(null, members);
             }
 
             /// <summary>
             /// Creates a new group that captures its subexpressions by number or name (optional).
             /// </summary>
-            /// <param name="name">An optional name to associate with the capture group.</param>
-            /// <param name="expressions">The sub-expressions appearing in the group.</param>
+            /// <param name="options">The capture group options to use.</param>
+            /// <param name="members">The sub-expressions appearing in the group.</param>
             /// <returns>The capture group.</returns>
-            public static ICaptureGroup Of(string name, params IGroupMember[] expressions)
+            public static ICaptureGroup Of(CaptureGroupOptions options, params IGroupMember[] members)
             {
-                return From(name, expressions);
+                return From(options, members);
             }
 
             /// <summary>
             /// Creates a new group that captures its subexpressions by number or name (optional).
             /// </summary>
-            /// <param name="name">An optional name to associate with the capture group.</param>
-            /// <param name="expressions">The sub-expressions appearing in the group.</param>
+            /// <param name="members">The sub-expressions appearing in the group.</param>
             /// <returns>The capture group.</returns>
-            public static ICaptureGroup From(IEnumerable<IGroupMember> expressions)
+            public static ICaptureGroup From(IEnumerable<IGroupMember> members)
             {
-                return From(null, expressions);
+                return From(null, members);
             }
 
             /// <summary>
             /// Creates a new group that captures its subexpressions by number or name (optional).
             /// </summary>
-            /// <param name="name">An optional name to associate with the capture group.</param>
-            /// <param name="expressions">The sub-expressions appearing in the group.</param>
+            /// <param name="options">The capture group options to use -or- null, if no options are provided.</param>
+            /// <param name="members">The sub-expressions appearing in the group.</param>
             /// <returns>The capture group.</returns>
-            public static ICaptureGroup From(string name, IEnumerable<IGroupMember> expressions)
+            public static ICaptureGroup From(CaptureGroupOptions options, IEnumerable<IGroupMember> members)
             {
-                if (expressions == null)
+                if (members == null)
                 {
-                    throw new ArgumentNullException(nameof(expressions));
+                    throw new ArgumentNullException(nameof(members));
                 }
-                if (String.IsNullOrWhiteSpace(name))
+                var group = new CaptureGroup();
+                if (options != null)
                 {
-                    name = null;
+                    string name = String.IsNullOrWhiteSpace(options.Name) ? null : options.Name;
+                    ValidateCaptureGroupName(nameof(options), name);
+                    group.Name = name;
+                    group.UseQuotes = options.UseQuotes;
                 }
-                ValidateCaptureGroupName(nameof(name), name);
-                var group = new CaptureGroup() { Name = name };
-                foreach (var expression in expressions)
+                foreach (var member in members)
                 {
-                    group.Add(expression);
+                    group.Add(member);
                 }
                 return group;
             }
@@ -84,10 +85,11 @@ namespace RegexUp
             /// </summary>
             /// <param name="current">The name to store the result in.</param>
             /// <param name="previous">The starting group name to replace.</param>
+            /// <param name="members">The sub-expressions appearing in the group.</param>
             /// <returns>The balance group.</returns>
             public static IBalancedGroup Of(string current, string previous, params IGroupMember[] members)
             {
-                return From(current, previous, members);
+                return From(current, previous, null, members);
             }
 
             /// <summary>
@@ -95,8 +97,35 @@ namespace RegexUp
             /// </summary>
             /// <param name="current">The name to store the result in.</param>
             /// <param name="previous">The starting group name to replace.</param>
+            /// <param name="members">The sub-expressions appearing in the group.</param>
+            /// <param name="options">The balance group options to use -or- null, if no options are provided.</param>
+            /// <returns>The balance group.</returns>
+            public static IBalancedGroup Of(string current, string previous, BalanceGroupOptions options, params IGroupMember[] members)
+            {
+                return From(current, previous, options, members);
+            }
+
+            /// <summary>
+            /// Creates a balanced group.
+            /// </summary>
+            /// <param name="current">The name to store the result in.</param>
+            /// <param name="previous">The starting group name to replace.</param>
+            /// <param name="members">The sub-expressions appearing in the group.</param>
             /// <returns>The balance group.</returns>
             public static IBalancedGroup From(string current, string previous, IEnumerable<IGroupMember> members)
+            {
+                return From(current, previous, null, members);
+            }
+
+            /// <summary>
+            /// Creates a balanced group.
+            /// </summary>
+            /// <param name="current">The name to store the result in.</param>
+            /// <param name="previous">The starting group name to replace.</param>
+            /// <param name="options">The sub-expressions appearing in the group.</param>
+            /// <param name="options">The balance group options to use -or- null, if no options are provided.</param>
+            /// <returns>The balance group.</returns>
+            public static IBalancedGroup From(string current, string previous, BalanceGroupOptions options, IEnumerable<IGroupMember> members)
             {
                 if (String.IsNullOrWhiteSpace(current))
                 {
@@ -108,7 +137,17 @@ namespace RegexUp
                     throw new ArgumentException(Resources.PreviousGroupNameBlank, nameof(previous));
                 }
                 ValidateCaptureGroupName(nameof(previous), previous);
-                return new BalancedGroup() { Current = current, Previous = previous };
+                var group = new BalancedGroup()
+                {
+                    Current = current,
+                    Previous = previous,
+                    UseQuotes = options?.UseQuotes ?? false
+                };
+                foreach (var member in members)
+                {
+                    group.Add(member);
+                }
+                return group;
             }
         }
 
@@ -129,23 +168,23 @@ namespace RegexUp
             /// Creates a group that is not captured.
             /// </summary>
             /// <returns>The non-capture group.</returns>
-            public static INonCaptureGroup Of(params IGroupMember[] expressions)
+            public static INonCaptureGroup Of(params IGroupMember[] members)
             {
-                return From(expressions);
+                return From(members);
             }
 
             /// <summary>
             /// Creates a group that is not captured.
             /// </summary>
             /// <returns>The non-capture group.</returns>
-            public static INonCaptureGroup From(IEnumerable<IGroupMember> expressions)
+            public static INonCaptureGroup From(IEnumerable<IGroupMember> members)
             {
-                if (expressions == null)
+                if (members == null)
                 {
-                    throw new ArgumentNullException(nameof(expressions));
+                    throw new ArgumentNullException(nameof(members));
                 }
                 var group = new NonCaptureGroup();
-                foreach (var expression in expressions)
+                foreach (var expression in members)
                 {
                     group.Add(expression);
                 }
@@ -183,7 +222,12 @@ namespace RegexUp
                 }
                 ValidateRegexOptions(nameof(enabled), enabled);
                 ValidateRegexOptions(nameof(disabled), disabled);
-                return new OptionsGroup() { EnabledOptions = enabled, DisabledOptions = disabled };
+                var group = new OptionsGroup() { EnabledOptions = enabled, DisabledOptions = disabled };
+                foreach (var member in members)
+                {
+                    group.Add(member);
+                }
+                return group;
             }
 
             private static void ValidateRegexOptions(string parameterName, GroupRegexOptions options)
@@ -198,6 +242,183 @@ namespace RegexUp
                 {
                     throw new ArgumentException(Resources.InvalidGroupOptions, parameterName);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Provides factory methods for creating group constructs defining a zero-width positive lookahead assertion.
+        /// </summary>
+        public static class LookaheadAssertions
+        {
+            /// <summary>
+            /// Provides factory methods for creating positive lookahead assertion groups.
+            /// </summary>
+            public static class Positive
+            {
+                /// <summary>
+                /// Creates a group that is not captured.
+                /// </summary>
+                /// <returns>The non-capture group.</returns>
+                public static IPositiveLookaheadAssertionGroup Of(params IGroupMember[] members)
+                {
+                    return From(members);
+                }
+
+                /// <summary>
+                /// Creates a group that is not captured.
+                /// </summary>
+                /// <returns>The non-capture group.</returns>
+                public static IPositiveLookaheadAssertionGroup From(IEnumerable<IGroupMember> members)
+                {
+                    if (members == null)
+                    {
+                        throw new ArgumentNullException(nameof(members));
+                    }
+                    var group = new PositiveLookaheadAssertionGroup();
+                    foreach (var expression in members)
+                    {
+                        group.Add(expression);
+                    }
+                    return group;
+                }
+            }
+
+            /// <summary>
+            /// Provides factory methods for creating negative lookahead assertion groups.
+            /// </summary>
+            public static class Negative
+            {
+                /// <summary>
+                /// Creates a group that is not captured.
+                /// </summary>
+                /// <returns>The non-capture group.</returns>
+                public static INegativeLookaheadAssertionGroup Of(params IGroupMember[] members)
+                {
+                    return From(members);
+                }
+
+                /// <summary>
+                /// Creates a group that is not captured.
+                /// </summary>
+                /// <returns>The non-capture group.</returns>
+                public static INegativeLookaheadAssertionGroup From(IEnumerable<IGroupMember> members)
+                {
+                    if (members == null)
+                    {
+                        throw new ArgumentNullException(nameof(members));
+                    }
+                    var group = new NegativeLookaheadAssertionGroup();
+                    foreach (var expression in members)
+                    {
+                        group.Add(expression);
+                    }
+                    return group;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Provides factory methods for creating group constructs defining a zero-width positive lookahead assertion.
+        /// </summary>
+        public static class LookbehindAssertions
+        {
+            /// <summary>
+            /// Provides factory methods for creating positive lookahead assertion groups.
+            /// </summary>
+            public static class Positive
+            {
+                /// <summary>
+                /// Creates a group that is not captured.
+                /// </summary>
+                /// <returns>The non-capture group.</returns>
+                public static IPositiveLookbehindAssertionGroup Of(params IGroupMember[] members)
+                {
+                    return From(members);
+                }
+
+                /// <summary>
+                /// Creates a group that is not captured.
+                /// </summary>
+                /// <returns>The non-capture group.</returns>
+                public static IPositiveLookbehindAssertionGroup From(IEnumerable<IGroupMember> members)
+                {
+                    if (members == null)
+                    {
+                        throw new ArgumentNullException(nameof(members));
+                    }
+                    var group = new PositiveLookbehindAssertionGroup();
+                    foreach (var expression in members)
+                    {
+                        group.Add(expression);
+                    }
+                    return group;
+                }
+            }
+
+            /// <summary>
+            /// Provides factory methods for creating negative lookahead assertion groups.
+            /// </summary>
+            public static class Negative
+            {
+                /// <summary>
+                /// Creates a group that is not captured.
+                /// </summary>
+                /// <returns>The non-capture group.</returns>
+                public static INegativeLookbehindAssertionGroup Of(params IGroupMember[] members)
+                {
+                    return From(members);
+                }
+
+                /// <summary>
+                /// Creates a group that is not captured.
+                /// </summary>
+                /// <returns>The non-capture group.</returns>
+                public static INegativeLookbehindAssertionGroup From(IEnumerable<IGroupMember> members)
+                {
+                    if (members == null)
+                    {
+                        throw new ArgumentNullException(nameof(members));
+                    }
+                    var group = new NegativeLookbehindAssertionGroup();
+                    foreach (var expression in members)
+                    {
+                        group.Add(expression);
+                    }
+                    return group;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Provides factory methods for creating non-backtracking sub-expressions.
+        /// </summary>
+        public static class Nonbacktracking
+        {
+            /// <summary>
+            /// Creates a group that cannot be backtracked.
+            /// </summary>
+            /// <returns>The non-backtracked expression group.</returns>
+            public static INonbacktrackingGroup Of(params IGroupMember[] members)
+            {
+                return From(members);
+            }
+
+            /// <summary>
+            /// Creates a group that cannot be backtracked.
+            /// </summary>
+            /// <returns>The non-backtracked expression group.</returns>
+            public static INonbacktrackingGroup From(IEnumerable<IGroupMember> members)
+            {
+                if (members == null)
+                {
+                    throw new ArgumentNullException(nameof(members));
+                }
+                var group = new NonbacktrackingGroup();
+                foreach (var expression in members)
+                {
+                    group.Add(expression);
+                }
+                return group;
             }
         }
 
@@ -224,13 +445,13 @@ namespace RegexUp
             return encoded;
         }
 
-        public void Add(IGroupMember expression)
+        public void Add(IGroupMember member)
         {
-            if (expression == null)
+            if (member == null)
             {
-                throw new ArgumentNullException(nameof(expression));
+                throw new ArgumentNullException(nameof(member));
             }
-            members.Add(expression);
+            members.Add(member);
         }
 
         public override string ToString() => ((IExpression)this).Encode(ExpressionContext.Group);

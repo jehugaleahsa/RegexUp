@@ -61,4 +61,39 @@
         /// </summary>
         GroupRegexOptions DisabledOptions { get; }
     }
+
+    /// <summary>
+    /// A group that asserts the sub-expressions appears prior to the subsequent expression.
+    /// </summary>
+    public interface IPositiveLookaheadAssertionGroup : IGroup
+    {
+    }
+
+    /// <summary>
+    /// A group that asserts the sub-expressions do not appear prior to the subsequent expression.
+    /// </summary>
+    public interface INegativeLookaheadAssertionGroup : IGroup
+    {
+    }
+
+    /// <summary>
+    /// A group that asserts the sub-expressions do not appear after the previous expression.
+    /// </summary>
+    public interface IPositiveLookbehindAssertionGroup : IGroup
+    {
+    }
+
+    /// <summary>
+    /// A group that asserts the sub-expressions do not appear after the previous expression.
+    /// </summary>
+    public interface INegativeLookbehindAssertionGroup : IGroup
+    {
+    }
+
+    /// <summary>
+    /// A group that prevents the regular expression engine from backtracking.
+    /// </summary>
+    public interface INonbacktrackingGroup : IGroup
+    {
+    }
 }
