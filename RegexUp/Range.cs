@@ -5,27 +5,6 @@ using RegexUp.Properties;
 namespace RegexUp
 {
     /// <summary>
-    /// Defines a range of characters.
-    /// </summary>
-    public interface IRange : ICharacterGroupMember
-    {
-        /// <summary>
-        /// Gets the first character in the range.
-        /// </summary>
-        char First { get; }
-
-        /// <summary>
-        /// Gets the last character in the range.
-        /// </summary>
-        char Last { get; }
-
-        /// <summary>
-        /// Gets a subset of the range that should be excluded.
-        /// </summary>
-        ICharacterGroup ExcludedGroup { get; }
-    }
-
-    /// <summary>
     /// Porvides factory methods for creating character ranges.
     /// </summary>
     public sealed class Range : IRange, IExpression
@@ -59,7 +38,7 @@ namespace RegexUp
 
         public ICharacterGroup ExcludedGroup { get; }
 
-        public string Encode(ExpressionContext context)
+        string IExpression.Encode(ExpressionContext context)
         {
             var parts = new List<string>() { First.ToString(), "-", Last.ToString() };
             if (ExcludedGroup != null)
@@ -70,6 +49,6 @@ namespace RegexUp
             return encoded;
         }
 
-        public override string ToString() => Encode(ExpressionContext.CharacterGroup);
+        public override string ToString() => ((IExpression)this).Encode(ExpressionContext.CharacterGroup);
     }
 }

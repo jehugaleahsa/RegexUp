@@ -5,7 +5,7 @@ namespace RegexUp
     /// <summary>
     /// Provides factory methods for creating literals.
     /// </summary>
-    public sealed class Literal : ILiteral, ICharacterCategory, IGroupMember, ICharacterGroupMember, ICharacterEscape, IAnchor, IQuantifiable, IExpression
+    public sealed class Literal : ILiteral, IExpression
     {
         /// <summary>
         /// Creates a literal for the given value, escaping special characters, if necessary.
@@ -17,22 +17,18 @@ namespace RegexUp
             return new Literal(value);
         }
 
-        internal Literal(string value, bool bypassEscape = false)
+        internal Literal(string value)
         {
             this.Value = value;
-            this.BypassEscape = bypassEscape;
         }
 
+        /// <summary>
+        /// Gets the literal value.
+        /// </summary>
         public string Value { get; }
-
-        public bool BypassEscape { get; }
 
         string IExpression.Encode(ExpressionContext context)
         {
-            if (BypassEscape)
-            {
-                return Value;
-            }
             if (context == ExpressionContext.CharacterGroup)
             {
                 var escaped = Value.Replace(@"\", @"\\");
@@ -43,6 +39,10 @@ namespace RegexUp
             return Regex.Escape(Value);
         }
 
+        /// <summary>
+        /// Gets the literal value.
+        /// </summary>
+        /// <returns>The literal value.</returns>
         public override string ToString() => Value;
     }
 }

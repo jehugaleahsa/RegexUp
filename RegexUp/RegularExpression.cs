@@ -6,16 +6,26 @@ using System.Text.RegularExpressions;
 namespace RegexUp
 {
     /// <summary>
-    /// Represents the top-level regular expression.
+    /// Provides factory methods for creating regular expressions.
     /// </summary>
-    public sealed class RegularExpression
+    public sealed class RegularExpression : IRegularExpression
     {
         /// <summary>
         /// Creates a regular expression composed of the given subexpressions.
         /// </summary>
         /// <param name="expressions">The subexpressions making the regular expression.</param>
         /// <returns>The regular expression.</returns>
-        public static RegularExpression Of(params IGroupMember[] expressions)
+        public static IRegularExpression Of(params IGroupMember[] expressions)
+        {
+            return From(expressions);
+        }
+
+        /// <summary>
+        /// Creates a regular expression composed of the given subexpressions.
+        /// </summary>
+        /// <param name="expressions">The subexpressions making the regular expression.</param>
+        /// <returns>The regular expression.</returns>
+        public static IRegularExpression From(IEnumerable<IGroupMember> expressions)
         {
             if (expressions == null)
             {
@@ -31,10 +41,10 @@ namespace RegexUp
 
         private readonly List<IGroupMember> expressions = new List<IGroupMember>();
 
-        /// <summary>
-        /// Adds the given expression to the regular expression.
-        /// </summary>
-        /// <param name="expression">The expression to add.</param>
+        private RegularExpression()
+        {
+        }
+        
         public void Add(IGroupMember expression)
         {
             if (expression == null)
@@ -43,38 +53,25 @@ namespace RegexUp
             }
             expressions.Add(expression);
         }
-
-        /// <summary>
-        /// Builds a regular expression from the expression.
-        /// </summary>
-        /// <param name="expression">The expression to build the regular expression from.</param>
-        /// <param name="options">A bitwise combination of the enumeration values that modify the regular expression.</param>
-        /// <returns>The regular expression.</returns>
+        
         public Regex ToRegex(RegexOptions options = RegexOptions.None)
         {
-            var pattern = EncodeExpressions();
+            var pattern = EncodeMembers();
             return new Regex(pattern, options);
         }
 
-        /// <summary>
-        /// Builds a regular expression from the expression.
-        /// </summary>
-        /// <param name="expression">The expression to build the regular expression from.</param>
-        /// <param name="options">A bitwise combination of the enumeration values that modify the regular expression.</param>
-        /// <param name="matchTimeout">A time-out interval, or InfiniteMatchTimeout to indicate that the method should not time out.</param>
-        /// <returns></returns>
         public Regex ToRegex(RegexOptions options, TimeSpan matchTimeout)
         {
-            var pattern = EncodeExpressions();
+            var pattern = EncodeMembers();
             return new Regex(pattern, options, matchTimeout);
         }
 
-        private string EncodeExpressions()
+        private string EncodeMembers()
         {
             var encoded = String.Join(String.Empty, expressions.Cast<IExpression>().Select(e => e.Encode(ExpressionContext.Group)));
             return encoded;
         }
 
-        public override string ToString() => EncodeExpressions();
+        public override string ToString() => EncodeMembers();
     }
 }

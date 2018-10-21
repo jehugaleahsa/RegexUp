@@ -8,13 +8,13 @@ namespace RegexUp.Tests
         [TestMethod]
         public void UrlScheme()
         {
-            RegularExpression expression = RegularExpression.Of(
+            var expression = RegularExpression.Of(
                 Anchors.Carot,
 
                 // scheme - (?:([A-Za-z]+):)?
                 Quantifiers.ZeroOrOne(
-                    Groups.NonCapture(
-                        Groups.Capture(
+                    Group.NonCapture.Of(
+                        Group.Capture.Of(
                             Quantifiers.OneOrMore(
                                 CharacterGroup.Of(
                                     Range.For('A', 'Z'),
@@ -27,12 +27,12 @@ namespace RegexUp.Tests
                 ),
 
                 // slash - (/{0,3})
-                Groups.Capture(
+                Group.Capture.Of(
                     Quantifiers.Between(Literal.For("/"), 0, 3)
                 ),
 
                 // host - ([0-9.\-A-Za-z]+)
-                Groups.Capture(
+                Group.Capture.Of(
                     Quantifiers.OneOrMore(
                         CharacterGroup.Of(
                             Range.For('0', '9'),
@@ -46,9 +46,9 @@ namespace RegexUp.Tests
 
                 // port - (?::(\d+))?
                 Quantifiers.ZeroOrOne(
-                    Groups.NonCapture(
+                    Group.NonCapture.Of(
                         Literal.For(":"),
-                        Groups.Capture(
+                        Group.Capture.Of(
                             Quantifiers.OneOrMore(CharacterClasses.Digit)
                         )
                     )
@@ -56,7 +56,7 @@ namespace RegexUp.Tests
 
                 // path - (/[^?#]*)?
                 Quantifiers.ZeroOrOne(
-                    Groups.Capture(
+                    Group.Capture.Of(
                         Literal.For("/"),
                         Quantifiers.ZeroOrMore(
                             CharacterGroup.Of(
@@ -70,9 +70,9 @@ namespace RegexUp.Tests
 
                 // query - (?:\?([^#]*))?
                 Quantifiers.ZeroOrOne(
-                    Groups.NonCapture(
+                    Group.NonCapture.Of(
                         Literal.For("?"),
-                        Groups.Capture(
+                        Group.Capture.Of(
                             Quantifiers.ZeroOrMore(
                                 CharacterGroup.Of(true, Literal.For("#"))
                             )
@@ -82,9 +82,9 @@ namespace RegexUp.Tests
 
                 // hash - (?:#(.*))?
                 Quantifiers.ZeroOrOne(
-                    Groups.NonCapture(
+                    Group.NonCapture.Of(
                         Literal.For("#"),
-                        Groups.Capture(
+                        Group.Capture.Of(
                             Quantifiers.ZeroOrMore(CharacterClasses.Wildcard)
                         )
                     )

@@ -1,8 +1,8 @@
 ﻿namespace RegexUp
 {
-    public enum ExpressionContext
+    internal enum ExpressionContext
     {
-        Group = 2,
-        CharacterGroup = 3
+        Group = 1,
+        CharacterGroup = 2
     }
 }

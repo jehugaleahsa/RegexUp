@@ -113,10 +113,9 @@ namespace RegexUp
 
         private string EncodeChildExpression(ExpressionContext context)
         {
-            if (expression is Literal literal && !literal.BypassEscape && literal.Value.Length > 1)
+            if (expression is Literal literal && literal.Value.Length > 1)
             {
-                var group = Groups.NonCapture();
-                group.Add(literal);
+                var group = Group.NonCapture.Of(literal);
                 return ((IExpression)group).Encode(ExpressionContext.Group);
             }
             return ((IExpression)expression).Encode(context);

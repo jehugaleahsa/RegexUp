@@ -4,25 +4,18 @@ using System.Collections.Generic;
 namespace RegexUp
 {
     /// <summary>
-    /// Defines a series of valid characters.
+    /// Provides factory methods from creating a character group.
     /// </summary>
-    public interface ICharacterGroup
-    {
-    }
-
-    /// <summary>
-    /// Defines a series a valid characters.
-    /// </summary>
-    public sealed class CharacterGroup : ICharacterGroup, IGroupMember, IQuantifiable, IExpression
+    public sealed class CharacterGroup : ICharacterGroup, IExpression
     {
         /// <summary>
         /// Creates a new character group with the given sub-expressions.
         /// </summary>
         /// <param name="expressions">The sub-expressions to add to the character group.</param>
         /// <returns>The character group.</returns>
-        public static CharacterGroup Of(params ICharacterGroupMember[] expressions)
+        public static ICharacterGroup Of(params ICharacterGroupMember[] expressions)
         {
-            return Of(false, expressions);
+            return From(false, expressions);
         }
 
         /// <summary>
@@ -31,7 +24,28 @@ namespace RegexUp
         /// <param name="isNegated">Indicates whether the character group should be negated.</param>
         /// <param name="expressions">The sub-expressions to add to the character group.</param>
         /// <returns>The character group.</returns>
-        public static CharacterGroup Of(bool isNegated, params ICharacterGroupMember[] expressions)
+        public static ICharacterGroup Of(bool isNegated, params ICharacterGroupMember[] expressions)
+        {
+            return From(isNegated, expressions);
+        }
+
+        /// <summary>
+        /// Creates a new character group with the given sub-expressions.
+        /// </summary>
+        /// <param name="expressions">The sub-expressions to add to the character group.</param>
+        /// <returns>The character group.</returns>
+        public static ICharacterGroup From(IEnumerable<ICharacterGroupMember> expressions)
+        {
+            return From(false, expressions);
+        }
+
+        /// <summary>
+        /// Creates a new character group with the given sub-expressions.
+        /// </summary>
+        /// <param name="isNegated">Indicates whether the character group should be negated.</param>
+        /// <param name="expressions">The sub-expressions to add to the character group.</param>
+        /// <returns>The character group.</returns>
+        public static ICharacterGroup From(bool isNegated, IEnumerable<ICharacterGroupMember> expressions)
         {
             if (expressions == null)
             {
@@ -46,25 +60,13 @@ namespace RegexUp
         }
 
         private readonly List<ICharacterGroupMember> members = new List<ICharacterGroupMember>();
-
-        /// <summary>
-        /// Initializes a new instance of CharacterGroup.
-        /// </summary>
-        public CharacterGroup()
+        
+        private CharacterGroup()
         {
         }
 
-        /// <summary>
-        /// Gets or sets whether the the character group should be negated.
-        /// If true, only characters not found in the group will match.
-        /// If false, only characters found in the group will match.
-        /// </summary>
         public bool IsNegated { get; set; }
-
-        /// <summary>
-        /// Add the literal, escaped characters or range to the character group.
-        /// </summary>
-        /// <param name="member">The literal, escape characters or range to add.</param>
+        
         public void Add(ICharacterGroupMember member)
         {
             if (member == null)
@@ -74,7 +76,7 @@ namespace RegexUp
             members.Add(member);
         }
         
-        public string Encode(ExpressionContext context)
+        string IExpression.Encode(ExpressionContext context)
         {
             if (members.Count == 0)
             {
@@ -95,6 +97,6 @@ namespace RegexUp
             return encoded;
         }
 
-        public override string ToString() => Encode(ExpressionContext.Group);
+        public override string ToString() => ((IExpression)this).Encode(ExpressionContext.Group);
     }
 }

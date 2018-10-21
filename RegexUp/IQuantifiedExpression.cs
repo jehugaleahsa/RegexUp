@@ -1,7 +1,7 @@
 ﻿namespace RegexUp
 {
     /// <summary>
-    /// A subexpression appearing within a regular expression with an indicator specifying how many times it can occur.
+    /// A sub-expression appearing within a regular expression with an indicator specifying how many times it can occur.
     /// </summary>
     public interface IQuantifiedExpression : IGroupMember
     {
