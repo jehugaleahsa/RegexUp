@@ -151,7 +151,7 @@ namespace RegexUp
             }
         }
 
-        private static void ValidateCaptureGroupName(string parameterName, string name)
+        internal static void ValidateCaptureGroupName(string parameterName, string name)
         {
             if (name != null && (Char.IsDigit(name[0]) || name.Any(Char.IsPunctuation)))
             {

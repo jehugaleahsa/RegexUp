@@ -70,7 +70,16 @@ namespace RegexUp.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A capture group name cannot start with a digit or contain punctuation..
+        ///   Looks up a localized string similar to The capture group number must be 1 or greater..
+        /// </summary>
+        internal static string InvalidBackreferenceNumber {
+            get {
+                return ResourceManager.GetString("InvalidBackreferenceNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The capture group name is invalid..
         /// </summary>
         internal static string InvalidCaptureGroupName {
             get {
