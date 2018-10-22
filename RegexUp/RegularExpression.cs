@@ -15,7 +15,7 @@ namespace RegexUp
         /// </summary>
         /// <param name="expressions">The subexpressions making the regular expression.</param>
         /// <returns>The regular expression.</returns>
-        public static IRegularExpression Of(params IGroupMember[] expressions)
+        public static IRegularExpression Of(params IExpression[] expressions)
         {
             return From(expressions);
         }
@@ -25,7 +25,7 @@ namespace RegexUp
         /// </summary>
         /// <param name="expressions">The subexpressions making the regular expression.</param>
         /// <returns>The regular expression.</returns>
-        public static IRegularExpression From(IEnumerable<IGroupMember> expressions)
+        public static IRegularExpression From(IEnumerable<IExpression> expressions)
         {
             if (expressions == null)
             {
@@ -39,13 +39,13 @@ namespace RegexUp
             return regularExpression;
         }
 
-        private readonly List<IGroupMember> expressions = new List<IGroupMember>();
+        private readonly List<IExpression> expressions = new List<IExpression>();
 
         private RegularExpression()
         {
         }
         
-        public void Add(IGroupMember expression)
+        public void Add(IExpression expression)
         {
             if (expression == null)
             {
@@ -68,7 +68,7 @@ namespace RegexUp
 
         private string EncodeMembers()
         {
-            var encoded = String.Join(String.Empty, expressions.Cast<IExpression>().Select(e => e.Encode(ExpressionContext.Group)));
+            var encoded = String.Join(String.Empty, expressions.Cast<IExpressionEncoder>().Select(e => e.Encode(ExpressionContext.Group)));
             return encoded;
         }
 

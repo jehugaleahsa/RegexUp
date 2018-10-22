@@ -1,10 +1,10 @@
 ﻿namespace RegexUp
 {
     /// <summary>
-    /// A subexpression appearing within a regular expression.
+    /// Represents one or more sub-expressions.
     /// </summary>
-    internal interface IExpression
+    public interface IExpression
     {
-        string Encode(ExpressionContext context);
+        bool NeedsGroupedToQuantify();
     }
 }

@@ -3,7 +3,7 @@
     /// <summary>
     /// Match any character falling within a standard Unicode general category.
     /// </summary>
-    public interface ICharacterClass : ICharacterGroupMember, IGroupMember, IQuantifiable
+    public interface ICharacterClass : ICharacterGroupMember, IExpression
     {
     }
 }

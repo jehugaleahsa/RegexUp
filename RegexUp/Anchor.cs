@@ -1,6 +1,6 @@
 ﻿namespace RegexUp
 {
-    internal class Anchor : IAnchor, IExpression
+    internal class Anchor : IAnchor, IExpressionEncoder
     {
         public Anchor(string value)
         {
@@ -8,6 +8,8 @@
         }
 
         public string Value { get; }
+
+        public bool NeedsGroupedToQuantify() => false;
 
         public string Encode(ExpressionContext context) => Value;
 

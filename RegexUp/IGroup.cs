@@ -3,13 +3,13 @@
     /// <summary>
     /// A group delineates subexpressions of a regular expression and can capture the substrings of an input string.
     /// </summary>
-    public interface IGroup : IGroupMember, IQuantifiable
+    public interface IGroup : IExpression
     {
         /// <summary>
         /// Adds the given sub-expression to the group.
         /// </summary>
-        /// <param name="expression">The expression to add.</param>
-        void Add(IGroupMember expression);
+        /// <param name="member">The expression to add.</param>
+        void Add(IExpression member);
     }
 
     /// <summary>

@@ -11,8 +11,8 @@ namespace RegexUp
         /// <summary>
         /// Adds the given expression to the regular expression.
         /// </summary>
-        /// <param name="expression">The expression to add.</param>
-        void Add(IGroupMember expression);
+        /// <param name="member">The expression to add.</param>
+        void Add(IExpression member);
 
         /// <summary>
         /// Builds a regular expression from the expression.

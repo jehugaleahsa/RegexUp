@@ -3,7 +3,7 @@
     /// <summary>
     /// Matches any single character in the group.
     /// </summary>
-    public interface ICharacterGroup : ICharacterClass, IGroupMember, IQuantifiable
+    public interface ICharacterGroup : ICharacterClass, IExpression
     {
         /// <summary>
         /// Gets or sets whether the the character group should be negated.

@@ -7,7 +7,7 @@ namespace RegexUp
     /// <summary>
     /// Porvides factory methods for creating character ranges.
     /// </summary>
-    public sealed class Range : IRange, IExpression
+    public sealed class Range : IRange, IExpressionEncoder
     {
         /// <summary>
         /// Creates a range of characters.
@@ -38,17 +38,17 @@ namespace RegexUp
 
         public ICharacterGroup ExcludedGroup { get; }
 
-        string IExpression.Encode(ExpressionContext context)
+        string IExpressionEncoder.Encode(ExpressionContext context)
         {
             var parts = new List<string>() { First.ToString(), "-", Last.ToString() };
             if (ExcludedGroup != null)
             {
-                parts.Add(((IExpression)ExcludedGroup).Encode(context));
+                parts.Add(((IExpressionEncoder)ExcludedGroup).Encode(context));
             }
             var encoded = String.Join(String.Empty, parts);
             return encoded;
         }
 
-        public override string ToString() => ((IExpression)this).Encode(ExpressionContext.CharacterGroup);
+        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.CharacterGroup);
     }
 }

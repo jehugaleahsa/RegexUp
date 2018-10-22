@@ -6,7 +6,7 @@ namespace RegexUp
     /// <summary>
     /// Provides factory methods from creating a character group.
     /// </summary>
-    public sealed class CharacterGroup : ICharacterGroup, IExpression
+    public sealed class CharacterGroup : ICharacterGroup, IExpressionEncoder
     {
         /// <summary>
         /// Creates a new character group with the given sub-expressions.
@@ -75,8 +75,10 @@ namespace RegexUp
             }
             members.Add(member);
         }
-        
-        string IExpression.Encode(ExpressionContext context)
+
+        bool IExpression.NeedsGroupedToQuantify() => false;
+
+        string IExpressionEncoder.Encode(ExpressionContext context)
         {
             if (members.Count == 0)
             {
@@ -90,13 +92,13 @@ namespace RegexUp
             for (int memberIndex = 0; memberIndex != members.Count; ++memberIndex)
             {
                 var member = members[memberIndex];
-                parts.Add(((IExpression)member).Encode(ExpressionContext.CharacterGroup));
+                parts.Add(((IExpressionEncoder)member).Encode(ExpressionContext.CharacterGroup));
             }
             parts.Add("]");
             var encoded = String.Join(String.Empty, parts);
             return encoded;
         }
 
-        public override string ToString() => ((IExpression)this).Encode(ExpressionContext.Group);
+        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group);
     }
 }

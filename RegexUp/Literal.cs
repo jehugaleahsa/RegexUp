@@ -1,11 +1,12 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 
 namespace RegexUp
 {
     /// <summary>
     /// Provides factory methods for creating literals.
     /// </summary>
-    public sealed class Literal : ILiteral, IExpression
+    public sealed class Literal : ILiteral, IExpressionEncoder
     {
         /// <summary>
         /// Creates a literal for the given value, escaping special characters, if necessary.
@@ -14,6 +15,10 @@ namespace RegexUp
         /// <returns>The literal.</returns>
         public static ILiteral For(string value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
             return new Literal(value);
         }
 
@@ -27,7 +32,9 @@ namespace RegexUp
         /// </summary>
         public string Value { get; }
 
-        string IExpression.Encode(ExpressionContext context)
+        bool IExpression.NeedsGroupedToQuantify() => Value.Length > 1;
+
+        string IExpressionEncoder.Encode(ExpressionContext context)
         {
             if (context == ExpressionContext.CharacterGroup)
             {

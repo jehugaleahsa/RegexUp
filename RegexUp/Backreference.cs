@@ -6,7 +6,7 @@ namespace RegexUp
     /// <summary>
     /// Provides factory methods for creating backreferences.
     /// </summary>
-    public sealed class Backreference : IBackreference, IExpression
+    public sealed class Backreference : IBackreference, IExpressionEncoder
     {
         /// <summary>
         /// Creates a backreference for the group in given position.
@@ -48,7 +48,9 @@ namespace RegexUp
 
         public bool UseQuotes { get; set; }
 
-        string IExpression.Encode(ExpressionContext context)
+        bool IExpression.NeedsGroupedToQuantify() => false;
+
+        string IExpressionEncoder.Encode(ExpressionContext context)
         {
             if (IsNamed)
             {

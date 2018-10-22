@@ -8,7 +8,7 @@ namespace RegexUp
     /// <summary>
     /// Provides factory methods for creating different groups.
     /// </summary>
-    public abstract class Group : IGroup, IExpression
+    public abstract class Group : IGroup, IExpressionEncoder
     {
         /// <summary>
         /// Provides factory methods for creating capture groups.
@@ -21,7 +21,7 @@ namespace RegexUp
             /// <param name="name">An optional name to associate with the capture group.</param>
             /// <param name="members">The sub-expressions appearing in the group.</param>
             /// <returns>The capture group.</returns>
-            public static ICaptureGroup Of(params IGroupMember[] members)
+            public static ICaptureGroup Of(params IExpression[] members)
             {
                 return From(null, members);
             }
@@ -32,7 +32,7 @@ namespace RegexUp
             /// <param name="options">The capture group options to use.</param>
             /// <param name="members">The sub-expressions appearing in the group.</param>
             /// <returns>The capture group.</returns>
-            public static ICaptureGroup Of(CaptureGroupOptions options, params IGroupMember[] members)
+            public static ICaptureGroup Of(CaptureGroupOptions options, params IExpression[] members)
             {
                 return From(options, members);
             }
@@ -42,7 +42,7 @@ namespace RegexUp
             /// </summary>
             /// <param name="members">The sub-expressions appearing in the group.</param>
             /// <returns>The capture group.</returns>
-            public static ICaptureGroup From(IEnumerable<IGroupMember> members)
+            public static ICaptureGroup From(IEnumerable<IExpression> members)
             {
                 return From(null, members);
             }
@@ -53,7 +53,7 @@ namespace RegexUp
             /// <param name="options">The capture group options to use -or- null, if no options are provided.</param>
             /// <param name="members">The sub-expressions appearing in the group.</param>
             /// <returns>The capture group.</returns>
-            public static ICaptureGroup From(CaptureGroupOptions options, IEnumerable<IGroupMember> members)
+            public static ICaptureGroup From(CaptureGroupOptions options, IEnumerable<IExpression> members)
             {
                 if (members == null)
                 {
@@ -87,7 +87,7 @@ namespace RegexUp
             /// <param name="previous">The starting group name to replace.</param>
             /// <param name="members">The sub-expressions appearing in the group.</param>
             /// <returns>The balance group.</returns>
-            public static IBalancedGroup Of(string current, string previous, params IGroupMember[] members)
+            public static IBalancedGroup Of(string current, string previous, params IExpression[] members)
             {
                 return From(current, previous, null, members);
             }
@@ -100,7 +100,7 @@ namespace RegexUp
             /// <param name="members">The sub-expressions appearing in the group.</param>
             /// <param name="options">The balance group options to use -or- null, if no options are provided.</param>
             /// <returns>The balance group.</returns>
-            public static IBalancedGroup Of(string current, string previous, BalanceGroupOptions options, params IGroupMember[] members)
+            public static IBalancedGroup Of(string current, string previous, BalanceGroupOptions options, params IExpression[] members)
             {
                 return From(current, previous, options, members);
             }
@@ -112,7 +112,7 @@ namespace RegexUp
             /// <param name="previous">The starting group name to replace.</param>
             /// <param name="members">The sub-expressions appearing in the group.</param>
             /// <returns>The balance group.</returns>
-            public static IBalancedGroup From(string current, string previous, IEnumerable<IGroupMember> members)
+            public static IBalancedGroup From(string current, string previous, IEnumerable<IExpression> members)
             {
                 return From(current, previous, null, members);
             }
@@ -125,7 +125,7 @@ namespace RegexUp
             /// <param name="options">The sub-expressions appearing in the group.</param>
             /// <param name="options">The balance group options to use -or- null, if no options are provided.</param>
             /// <returns>The balance group.</returns>
-            public static IBalancedGroup From(string current, string previous, BalanceGroupOptions options, IEnumerable<IGroupMember> members)
+            public static IBalancedGroup From(string current, string previous, BalanceGroupOptions options, IEnumerable<IExpression> members)
             {
                 if (String.IsNullOrWhiteSpace(current))
                 {
@@ -168,7 +168,7 @@ namespace RegexUp
             /// Creates a group that is not captured.
             /// </summary>
             /// <returns>The non-capture group.</returns>
-            public static INonCaptureGroup Of(params IGroupMember[] members)
+            public static INonCaptureGroup Of(params IExpression[] members)
             {
                 return From(members);
             }
@@ -177,7 +177,7 @@ namespace RegexUp
             /// Creates a group that is not captured.
             /// </summary>
             /// <returns>The non-capture group.</returns>
-            public static INonCaptureGroup From(IEnumerable<IGroupMember> members)
+            public static INonCaptureGroup From(IEnumerable<IExpression> members)
             {
                 if (members == null)
                 {
@@ -203,7 +203,7 @@ namespace RegexUp
             /// <param name="enabled">The options to enable.</param>
             /// <param name="disabled">The options to disable.</param>
             /// <returns>The options group.</returns>
-            public static IOptionsGroup Of(GroupRegexOptions enabled, GroupRegexOptions disabled, params IGroupMember[] members)
+            public static IOptionsGroup Of(GroupRegexOptions enabled, GroupRegexOptions disabled, params IExpression[] members)
             {
                 return From(enabled, disabled, members);
             }
@@ -214,7 +214,7 @@ namespace RegexUp
             /// <param name="enabled">The options to enable.</param>
             /// <param name="disabled">The options to disable.</param>
             /// <returns>The options group.</returns>
-            public static IOptionsGroup From(GroupRegexOptions enabled, GroupRegexOptions disabled, IEnumerable<IGroupMember> members)
+            public static IOptionsGroup From(GroupRegexOptions enabled, GroupRegexOptions disabled, IEnumerable<IExpression> members)
             {
                 if (members == null)
                 {
@@ -259,7 +259,7 @@ namespace RegexUp
                 /// Creates a group that is not captured.
                 /// </summary>
                 /// <returns>The non-capture group.</returns>
-                public static IPositiveLookaheadAssertionGroup Of(params IGroupMember[] members)
+                public static IPositiveLookaheadAssertionGroup Of(params IExpression[] members)
                 {
                     return From(members);
                 }
@@ -268,7 +268,7 @@ namespace RegexUp
                 /// Creates a group that is not captured.
                 /// </summary>
                 /// <returns>The non-capture group.</returns>
-                public static IPositiveLookaheadAssertionGroup From(IEnumerable<IGroupMember> members)
+                public static IPositiveLookaheadAssertionGroup From(IEnumerable<IExpression> members)
                 {
                     if (members == null)
                     {
@@ -292,7 +292,7 @@ namespace RegexUp
                 /// Creates a group that is not captured.
                 /// </summary>
                 /// <returns>The non-capture group.</returns>
-                public static INegativeLookaheadAssertionGroup Of(params IGroupMember[] members)
+                public static INegativeLookaheadAssertionGroup Of(params IExpression[] members)
                 {
                     return From(members);
                 }
@@ -301,7 +301,7 @@ namespace RegexUp
                 /// Creates a group that is not captured.
                 /// </summary>
                 /// <returns>The non-capture group.</returns>
-                public static INegativeLookaheadAssertionGroup From(IEnumerable<IGroupMember> members)
+                public static INegativeLookaheadAssertionGroup From(IEnumerable<IExpression> members)
                 {
                     if (members == null)
                     {
@@ -331,7 +331,7 @@ namespace RegexUp
                 /// Creates a group that is not captured.
                 /// </summary>
                 /// <returns>The non-capture group.</returns>
-                public static IPositiveLookbehindAssertionGroup Of(params IGroupMember[] members)
+                public static IPositiveLookbehindAssertionGroup Of(params IExpression[] members)
                 {
                     return From(members);
                 }
@@ -340,7 +340,7 @@ namespace RegexUp
                 /// Creates a group that is not captured.
                 /// </summary>
                 /// <returns>The non-capture group.</returns>
-                public static IPositiveLookbehindAssertionGroup From(IEnumerable<IGroupMember> members)
+                public static IPositiveLookbehindAssertionGroup From(IEnumerable<IExpression> members)
                 {
                     if (members == null)
                     {
@@ -364,7 +364,7 @@ namespace RegexUp
                 /// Creates a group that is not captured.
                 /// </summary>
                 /// <returns>The non-capture group.</returns>
-                public static INegativeLookbehindAssertionGroup Of(params IGroupMember[] members)
+                public static INegativeLookbehindAssertionGroup Of(params IExpression[] members)
                 {
                     return From(members);
                 }
@@ -373,7 +373,7 @@ namespace RegexUp
                 /// Creates a group that is not captured.
                 /// </summary>
                 /// <returns>The non-capture group.</returns>
-                public static INegativeLookbehindAssertionGroup From(IEnumerable<IGroupMember> members)
+                public static INegativeLookbehindAssertionGroup From(IEnumerable<IExpression> members)
                 {
                     if (members == null)
                     {
@@ -398,7 +398,7 @@ namespace RegexUp
             /// Creates a group that cannot be backtracked.
             /// </summary>
             /// <returns>The non-backtracked expression group.</returns>
-            public static INonbacktrackingGroup Of(params IGroupMember[] members)
+            public static INonbacktrackingGroup Of(params IExpression[] members)
             {
                 return From(members);
             }
@@ -407,7 +407,7 @@ namespace RegexUp
             /// Creates a group that cannot be backtracked.
             /// </summary>
             /// <returns>The non-backtracked expression group.</returns>
-            public static INonbacktrackingGroup From(IEnumerable<IGroupMember> members)
+            public static INonbacktrackingGroup From(IEnumerable<IExpression> members)
             {
                 if (members == null)
                 {
@@ -422,13 +422,18 @@ namespace RegexUp
             }
         }
 
-        private readonly List<IGroupMember> members = new List<IGroupMember>();
+        private readonly List<IExpression> members = new List<IExpression>();
 
         protected Group()
         {
         }
 
-        string IExpression.Encode(ExpressionContext context)
+        bool IExpression.NeedsGroupedToQuantify()
+        {
+            return false;
+        }
+
+        string IExpressionEncoder.Encode(ExpressionContext context)
         {
             if (members.Count == 0)
             {
@@ -441,11 +446,11 @@ namespace RegexUp
 
         protected virtual string EncodeMembers()
         {
-            var encoded = String.Join(String.Empty, members.Cast<IExpression>().Select(m => m.Encode(ExpressionContext.Group)));
+            var encoded = String.Join(String.Empty, members.Cast<IExpressionEncoder>().Select(m => m.Encode(ExpressionContext.Group)));
             return encoded;
         }
 
-        public void Add(IGroupMember member)
+        public void Add(IExpression member)
         {
             if (member == null)
             {
@@ -454,6 +459,6 @@ namespace RegexUp
             members.Add(member);
         }
 
-        public override string ToString() => ((IExpression)this).Encode(ExpressionContext.Group);
+        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group);
     }
 }

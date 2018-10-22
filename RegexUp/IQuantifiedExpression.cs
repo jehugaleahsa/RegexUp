@@ -3,7 +3,7 @@
     /// <summary>
     /// A sub-expression appearing within a regular expression with an indicator specifying how many times it can occur.
     /// </summary>
-    public interface IQuantifiedExpression : IGroupMember
+    public interface IQuantifiedExpression : IExpression
     {
         /// <summary>
         /// Gets the minimum number of times the expression may appear.

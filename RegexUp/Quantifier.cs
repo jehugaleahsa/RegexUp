@@ -14,7 +14,7 @@ namespace RegexUp
         /// </summary>
         /// <param name="expression">The expression to quantified.</param>
         /// <returns>The quantified expression.</returns>
-        public static IQuantifiedExpression ZeroOrMore(IQuantifiable expression, bool isGreedy = true)
+        public static IQuantifiedExpression ZeroOrMore(IExpression expression, bool isGreedy = true)
         {
             return new Quantifier(expression, "*") { LowerBound = 0, IsGreedy = isGreedy };
         }
@@ -24,7 +24,7 @@ namespace RegexUp
         /// </summary>
         /// <param name="expression">The expression to quantified.</param>
         /// <returns>The quantified expression.</returns>
-        public static IQuantifiedExpression OneOrMore(IQuantifiable expression, bool isGreedy = true)
+        public static IQuantifiedExpression OneOrMore(IExpression expression, bool isGreedy = true)
         {
             return new Quantifier(expression, "+") { LowerBound = 1, IsGreedy = isGreedy };
         }
@@ -34,7 +34,7 @@ namespace RegexUp
         /// </summary>
         /// <param name="expression">The expression to quantified.</param>
         /// <returns>The quantified expression.</returns>
-        public static IQuantifiedExpression ZeroOrOne(IQuantifiable expression, bool isGreedy = true)
+        public static IQuantifiedExpression ZeroOrOne(IExpression expression, bool isGreedy = true)
         {
             return new Quantifier(expression, "?") { LowerBound = 0, UpperBound = 1, IsGreedy = isGreedy };
         }
@@ -45,7 +45,7 @@ namespace RegexUp
         /// <param name="expression">The expression to quantified.</param>
         /// <param name="occurrences">The number of times the expression must occur.</param>
         /// <returns>The quantified expression.</returns>
-        public static IQuantifiedExpression Exactly(IQuantifiable expression, int occurrences, bool isGreedy = true)
+        public static IQuantifiedExpression Exactly(IExpression expression, int occurrences, bool isGreedy = true)
         {
             return new Quantifier(expression, $"{{{occurrences}}}") { LowerBound = occurrences, UpperBound = occurrences, IsGreedy = isGreedy };
         }
@@ -56,7 +56,7 @@ namespace RegexUp
         /// <param name="expression">The expression to quantified.</param>
         /// <param name="occurrences">The minimum number of times the expression must occur.</param>
         /// <returns>The quantified expression.</returns>
-        public static IQuantifiedExpression AtLeast(IQuantifiable expression, int occurrences, bool isGreedy = true)
+        public static IQuantifiedExpression AtLeast(IExpression expression, int occurrences, bool isGreedy = true)
         {
             return new Quantifier(expression, $"{{{occurrences},}}") { LowerBound = occurrences, IsGreedy = isGreedy };
         }
@@ -68,7 +68,7 @@ namespace RegexUp
         /// <param name="min">The minimum number of times the expression must occur.</param>
         /// <param name="max">The maximum number of times the expression must occur.</param>
         /// <returns>The quantified expression.</returns>
-        public static IQuantifiedExpression Between(IQuantifiable expression, int min, int max, bool isGreedy = true)
+        public static IQuantifiedExpression Between(IExpression expression, int min, int max, bool isGreedy = true)
         {
             if (max < min)
             {
@@ -78,12 +78,12 @@ namespace RegexUp
         }
     }
 
-    internal class Quantifier : IQuantifiedExpression, IExpression
+    internal class Quantifier : IQuantifiedExpression, IExpressionEncoder
     {
-        private readonly IQuantifiable expression;
+        private readonly IExpression expression;
         private readonly string quantifier;
 
-        public Quantifier(IQuantifiable expression, string quantifier)
+        public Quantifier(IExpression expression, string quantifier)
         {
             this.expression = expression ?? throw new ArgumentNullException(nameof(expression));
             this.quantifier = quantifier;
@@ -94,6 +94,8 @@ namespace RegexUp
         public int? UpperBound { get; set; }
 
         public bool IsGreedy { get; set; }
+
+        public bool NeedsGroupedToQuantify() => false;
 
         public string Encode(ExpressionContext context)
         {
@@ -113,12 +115,12 @@ namespace RegexUp
 
         private string EncodeChildExpression(ExpressionContext context)
         {
-            if (expression is Literal literal && literal.Value.Length > 1)
+            if (expression.NeedsGroupedToQuantify())
             {
-                var group = Group.NonCapture.Of(literal);
-                return ((IExpression)group).Encode(ExpressionContext.Group);
+                var group = Group.NonCapture.Of(expression);
+                return ((IExpressionEncoder)group).Encode(ExpressionContext.Group);
             }
-            return ((IExpression)expression).Encode(context);
+            return ((IExpressionEncoder)expression).Encode(context);
         }
 
         public override string ToString() => Encode(ExpressionContext.Group);

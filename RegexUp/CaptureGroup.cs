@@ -9,6 +9,8 @@ namespace RegexUp
 
         public bool UseQuotes { get; set; }
 
+        public bool NeedsGroupedToQuantify() => false;
+
         protected override string OnEncode()
         {
             var parts = new List<string>() { "(" };
