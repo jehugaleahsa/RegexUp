@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace RegexUp.Tests
@@ -45,6 +46,51 @@ namespace RegexUp.Tests
             var regex = new Regex(@"(?<!\\)-");
             var replacement = regex.Replace(@"a-zA-Z0-9\-$_&", @"\-");
             Assert.AreEqual(@"a\-zA\-Z0\-9\-$_&", replacement);
+        }
+        
+        [TestMethod]
+        public void QuantifyAnchor()
+        {
+            var regex = new Regex(@"^*");
+            Assert.IsTrue(regex.IsMatch("*"));
+            Assert.IsTrue(regex.IsMatch("abc"));
+        }
+
+        [TestMethod]
+        public void EmptyCaptureGroup_CapturesEmpty()
+        {
+            var regex = new Regex("()");
+            var match = regex.Match("hello");
+            Assert.IsTrue(match.Success);
+            Assert.IsTrue(match.Groups[1].Success);
+            Assert.AreEqual("", match.Groups[1].Value);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CaptureGroup_LeadingQuestionMark_Illegal()
+        {
+            new Regex("(?abc)");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CaptureGroup_EmptyName_Illegal()
+        {
+            new Regex("(?''abc)");
+        }
+
+        [TestMethod]
+        public void BalanceGroup_MissingCurrentName_IsOptional()
+        {
+            new Regex(@"((?'Open'\()[^)]*)+((?'-Open')[^()]*)+");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void BalanceGroup_MissingPreviousName_Illegal()
+        {
+            new Regex(@"((?'Open'\()[^)]*)+((?'Current-')[^()]*)+");
         }
     }
 }

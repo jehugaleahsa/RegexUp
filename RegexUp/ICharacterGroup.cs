@@ -1,4 +1,6 @@
-﻿namespace RegexUp
+﻿using System.Collections.Generic;
+
+namespace RegexUp
 {
     /// <summary>
     /// Matches any single character in the group.
@@ -11,6 +13,17 @@
         /// If false, only characters found in the group will match.
         /// </summary>
         bool IsNegated { get; set; }
+
+        /// <summary>
+        /// Gets the members of the character group.
+        /// </summary>
+        IEnumerable<ICharacterGroupMember> Members { get; }
+
+
+        /// <summary>
+        /// Gets the character group representing the subset of characters to exclude -or null.
+        /// </summary>
+        ICharacterGroup Exclusions { get; set; }
 
         /// <summary>
         /// Add the literal, escaped characters or range to the character group.

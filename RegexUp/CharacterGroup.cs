@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RegexUp
 {
@@ -15,7 +16,7 @@ namespace RegexUp
         /// <returns>The character group.</returns>
         public static ICharacterGroup Of(params ICharacterGroupMember[] expressions)
         {
-            return From(false, expressions);
+            return From(null, expressions);
         }
 
         /// <summary>
@@ -24,9 +25,9 @@ namespace RegexUp
         /// <param name="isNegated">Indicates whether the character group should be negated.</param>
         /// <param name="expressions">The sub-expressions to add to the character group.</param>
         /// <returns>The character group.</returns>
-        public static ICharacterGroup Of(bool isNegated, params ICharacterGroupMember[] expressions)
+        public static ICharacterGroup Of(CharacterGroupOptions options, params ICharacterGroupMember[] expressions)
         {
-            return From(isNegated, expressions);
+            return From(options, expressions);
         }
 
         /// <summary>
@@ -36,7 +37,7 @@ namespace RegexUp
         /// <returns>The character group.</returns>
         public static ICharacterGroup From(IEnumerable<ICharacterGroupMember> expressions)
         {
-            return From(false, expressions);
+            return From(null, expressions);
         }
 
         /// <summary>
@@ -45,13 +46,17 @@ namespace RegexUp
         /// <param name="isNegated">Indicates whether the character group should be negated.</param>
         /// <param name="expressions">The sub-expressions to add to the character group.</param>
         /// <returns>The character group.</returns>
-        public static ICharacterGroup From(bool isNegated, IEnumerable<ICharacterGroupMember> expressions)
+        public static ICharacterGroup From(CharacterGroupOptions options, IEnumerable<ICharacterGroupMember> expressions)
         {
             if (expressions == null)
             {
                 throw new ArgumentNullException(nameof(expressions));
             }
-            var group = new CharacterGroup() { IsNegated = isNegated };
+            var group = new CharacterGroup()
+            {
+                IsNegated = options?.IsNegated ?? false,
+                Exclusions = options?.Exclusions
+            };
             foreach (var expression in expressions)
             {
                 group.Add(expression);
@@ -66,6 +71,10 @@ namespace RegexUp
         }
 
         public bool IsNegated { get; set; }
+
+        public IEnumerable<ICharacterGroupMember> Members => members;
+
+        public ICharacterGroup Exclusions { get; set; }
         
         public void Add(ICharacterGroupMember member)
         {
@@ -80,10 +89,6 @@ namespace RegexUp
 
         string IExpressionEncoder.Encode(ExpressionContext context)
         {
-            if (members.Count == 0)
-            {
-                return String.Empty;
-            }
             var parts = new List<string>() { "[" };
             if (IsNegated)
             {
@@ -93,6 +98,11 @@ namespace RegexUp
             {
                 var member = members[memberIndex];
                 parts.Add(((IExpressionEncoder)member).Encode(ExpressionContext.CharacterGroup));
+            }
+            if (Exclusions != null && Exclusions.Members.Any())
+            {
+                parts.Add("-");
+                parts.Add(((IExpressionEncoder)Exclusions).Encode(ExpressionContext.CharacterGroup));
             }
             parts.Add("]");
             var encoded = String.Join(String.Empty, parts);

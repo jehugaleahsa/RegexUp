@@ -13,6 +13,16 @@ namespace RegexUp
         /// </summary>
         /// <param name="value">The value to create a literal for.</param>
         /// <returns>The literal.</returns>
+        public static ILiteral For(char value)
+        {
+            return new Literal(value.ToString());
+        }
+
+        /// <summary>
+        /// Creates a literal for the given value, escaping special characters, if necessary.
+        /// </summary>
+        /// <param name="value">The value to create a literal for.</param>
+        /// <returns>The literal.</returns>
         public static ILiteral For(string value)
         {
             if (value == null)

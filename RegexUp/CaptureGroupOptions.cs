@@ -3,7 +3,7 @@
     /// <summary>
     /// Holds the options for creating a capture group.
     /// </summary>
-    public class CaptureGroupOptions
+    public sealed class CaptureGroupOptions
     {
         /// <summary>
         /// Gets or sets the name to give the capture group.

@@ -60,7 +60,7 @@ namespace RegexUp.Tests
                         Literal.For("/"),
                         Quantifiers.ZeroOrMore(
                             CharacterGroup.Of(
-                                true,
+                                new CharacterGroupOptions() { IsNegated = true },
                                 Literal.For("?"),
                                 Literal.For("#")
                             )
@@ -74,7 +74,7 @@ namespace RegexUp.Tests
                         Literal.For("?"),
                         Group.Capture.Of(
                             Quantifiers.ZeroOrMore(
-                                CharacterGroup.Of(true, Literal.For("#"))
+                                CharacterGroup.Of(new CharacterGroupOptions() { IsNegated = true }, Literal.For("#"))
                             )
                         )
                     )

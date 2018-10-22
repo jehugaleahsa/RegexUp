@@ -129,7 +129,7 @@ namespace RegexUp
             {
                 if (String.IsNullOrWhiteSpace(current))
                 {
-                    throw new ArgumentException(Resources.CurrentGroupNameBlank, nameof(current));
+                    current = null;
                 }
                 ValidateCaptureGroupName(nameof(current), current);
                 if (String.IsNullOrWhiteSpace(previous))
@@ -435,10 +435,6 @@ namespace RegexUp
 
         string IExpressionEncoder.Encode(ExpressionContext context)
         {
-            if (members.Count == 0)
-            {
-                return String.Empty;
-            }
             return OnEncode();
         }
 

@@ -39,6 +39,24 @@ namespace RegexUp
             return regularExpression;
         }
 
+        /// <summary>
+        /// Creates a regular expression from the given regular expression.
+        /// </summary>
+        /// <param name="regex">The regular expression to parse.</param>
+        /// <returns>The regular expression.</returns>
+        public static IRegularExpression From(Regex regex)
+        {
+            if (regex == null)
+            {
+                throw new ArgumentNullException(nameof(regex));
+            }
+            var parser = new RegularExpressionParser();
+            var expression = parser.Parse(regex.ToString());
+            var regularExpression = new RegularExpression();
+            regularExpression.Add(expression);
+            return regularExpression;
+        }
+
         private readonly List<IExpression> expressions = new List<IExpression>();
 
         private RegularExpression()

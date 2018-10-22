@@ -16,7 +16,9 @@ namespace RegexUp.Tests
         [TestMethod]
         public void LeadingCarot_Negated_Matches()
         {
-            var regex = RegularExpression.Of(CharacterGroup.Of(true, Literal.For("^"))).ToRegex();
+            var regex = RegularExpression.Of(
+                CharacterGroup.Of(new CharacterGroupOptions() { IsNegated = true }, Literal.For("^"))
+            ).ToRegex();
             Assert.IsFalse(regex.IsMatch("^"));
         }
 

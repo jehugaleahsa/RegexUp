@@ -14,10 +14,5 @@
         /// Gets the last character in the range.
         /// </summary>
         char Last { get; }
-
-        /// <summary>
-        /// Gets a subset of the range that should be excluded.
-        /// </summary>
-        ICharacterGroup ExcludedGroup { get; }
     }
 }

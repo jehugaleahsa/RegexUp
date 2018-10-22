@@ -44,6 +44,8 @@ namespace RegexUp
         {
         }
 
+        internal IEnumerable<IExpression> Members => members;
+
         public void Add(IExpression member)
         {
             members.Add(member);
