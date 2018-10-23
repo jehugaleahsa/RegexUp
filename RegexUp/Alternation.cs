@@ -8,7 +8,7 @@ namespace RegexUp
     /// <summary>
     /// Provides factory methods for creating alternations.
     /// </summary>
-    public sealed class Alternation : IAlternation, IExpression, IExpressionEncoder
+    public sealed class Alternation : IAlternation, IExpression, IContainer, IExpressionEncoder
     {
         /// <summary>
         /// Creates an alternation consisting of the given alternatives.
@@ -130,9 +130,11 @@ namespace RegexUp
 
         private readonly List<IExpression> alternatives = new List<IExpression>();
 
-        private Alternation()
+        internal Alternation()
         {
         }
+
+        public IEnumerable<IExpression> Alternatives => alternatives;
 
         public void Add(IExpression alterivative)
         {
@@ -153,5 +155,7 @@ namespace RegexUp
             string encoded = String.Join("|", alternatives.Cast<IExpressionEncoder>().Select(e => e.Encode(ExpressionContext.Alternation)));
             return encoded;
         }
+
+        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group);
     }
 }

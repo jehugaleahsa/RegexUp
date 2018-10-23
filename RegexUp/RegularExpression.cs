@@ -8,7 +8,7 @@ namespace RegexUp
     /// <summary>
     /// Provides factory methods for creating regular expressions.
     /// </summary>
-    public sealed class RegularExpression : IRegularExpression
+    public sealed class RegularExpression : IRegularExpression, IContainer
     {
         /// <summary>
         /// Creates a regular expression composed of the given subexpressions.
@@ -51,9 +51,8 @@ namespace RegexUp
                 throw new ArgumentNullException(nameof(regex));
             }
             var parser = new RegularExpressionParser();
-            var expression = parser.Parse(regex.ToString());
             var regularExpression = new RegularExpression();
-            regularExpression.Add(expression);
+            parser.Parse(regularExpression, regex.ToString());
             return regularExpression;
         }
 

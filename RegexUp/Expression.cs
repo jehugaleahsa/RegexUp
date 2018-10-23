@@ -7,7 +7,7 @@ namespace RegexUp
     /// <summary>
     /// Defines an expression composed one or more expressions.
     /// </summary>
-    public sealed class Expression : IExpression, IExpressionEncoder
+    public sealed class Expression : IExpression, IContainer, IExpressionEncoder
     {
         /// <summary>
         /// Creates an expression consisting of multiple sub-expressions.
@@ -40,7 +40,7 @@ namespace RegexUp
 
         private readonly List<IExpression> members = new List<IExpression>();
 
-        private Expression()
+        internal Expression()
         {
         }
 

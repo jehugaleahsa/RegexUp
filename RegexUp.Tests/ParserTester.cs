@@ -521,5 +521,27 @@ namespace RegexUp.Tests
         }
 
         #endregion
+
+        #region Alternations
+
+        [TestMethod]
+        public void Parse_Alternation_TwoOptions()
+        {
+            RoundTripHelper.AssertRoundTrips(@"a|b");
+        }
+
+        [TestMethod]
+        public void Parse_Alternation_ThreeOptions()
+        {
+            RoundTripHelper.AssertRoundTrips(@"a|b|c");
+        }
+
+        [TestMethod]
+        public void Parse_Alternation_SeveralCompoundOptions()
+        {
+            RoundTripHelper.AssertRoundTrips(@"abc|def|ghi|jkl|mno|pqrs|tuv|wxyz");
+        }
+
+        #endregion
     }
 }

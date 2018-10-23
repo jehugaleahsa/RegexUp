@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace RegexUp
 {
-    internal class RegularExpressionParser
+    internal sealed class RegularExpressionParser
     {
-        public IExpression Parse(string regex)
+        public void Parse(RegularExpression regularExpression, string regex)
         {
             var context = new ParserContext(regex);
-            var parsed = context.Parse();
-            // TODO - Normalize the tree structure
-            return parsed;
+            IContainer expression = new Expression();
+            expression = context.Parse(expression);
+            regularExpression.Add((IExpression)expression);
         }
 
         private class ParserContext
@@ -23,73 +23,58 @@ namespace RegexUp
                 this.regex = regex;
             }
 
-            public IExpression Parse()
+            public IContainer Parse(IContainer container)
             {
                 if (index == regex.Length)
                 {
-                    return null;
+                    return container;
                 }
                 char nextChar = regex[index];
                 switch (nextChar)
                 {
-                    case '^': return ParseAnchor(Anchors.Carot);
-                    case '$': return ParseAnchor(Anchors.Dollar);
-                    case '.': return ParseCharacterClass(CharacterClasses.Wildcard);
-                    case '\\': return ParseEscapeSequence();
-                    case '[': return ParseCharacterGroup();
-                    case '(': return ParseGroup();
-                    case ')': return null;
-                    default: return ParseLiteral(Literal.For(nextChar));
+                    case '^': return ParseAnchor(container, Anchors.Carot);
+                    case '$': return ParseAnchor(container, Anchors.Dollar);
+                    case '.': return ParseCharacterClass(container, CharacterClasses.Wildcard);
+                    case '\\': return ParseEscapeSequence(container);
+                    case '[': return ParseCharacterGroup(container);
+                    case '(': return ParseGroup(container);
+                    case '|': return ParseAlternation(container);
+                    case ')': return container;
+                    default: return ParseLiteral(container, Literal.For(nextChar));
                 }
             }
 
-            private IExpression ParseAnchor(IExpression current)
+            private IContainer ParseAnchor(IContainer container, IExpression current)
             {
                 ++index;
                 current = Quantify(current);
-                var next = Parse();
-                if (next == null)
-                {
-                    return current;
-                }
-                return Expression.Of(current, next);
+                container.Add(current);
+                return Parse(container);
             }
 
-            private IExpression ParseLiteral(IExpression current)
+            private IContainer ParseLiteral(IContainer container, IExpression current)
             {
                 ++index;
                 current = Quantify(current);
-                var next = Parse();
-                if (next == null)
-                {
-                    return current;
-                }
-                return Expression.Of(current, next);
+                container.Add(current);
+                return Parse(container);
             }
 
-            private IExpression ParseCharacterClass(IExpression current)
+            private IContainer ParseCharacterClass(IContainer container, IExpression current)
             {
                 ++index;
                 current = Quantify(current);
-                var next = Parse();
-                if (next == null)
-                {
-                    return current;
-                }
-                return Expression.Of(current, next);
+                container.Add(current);
+                return Parse(container);
             }
 
-            private IExpression ParseEscapeSequence()
+            private IContainer ParseEscapeSequence(IContainer container)
             {
                 var current = ParseEscapeSequenceInternal(ExpressionContext.Group);
                 ++index;
                 current = Quantify(current);
-                var next = Parse();
-                if (next == null)
-                {
-                    return current;
-                }
-                return Expression.Of(current, next);
+                container.Add(current);
+                return Parse(container);
             }
 
             private IExpression ParseEscapeSequenceInternal(ExpressionContext context)
@@ -170,33 +155,19 @@ namespace RegexUp
             private IExpression ParseUnicodeCategory(bool isPositive)
             {
                 index += 2; // swallow {
-                int endIndex = GetUnicodeCategoryEndIndex();
+                int endIndex = regex.IndexOf('}', index);
                 string category = regex.Substring(index, endIndex - index);
                 index = endIndex;
                 return new UnicodeCategory($@"\{(isPositive ? 'p' : 'P')}{{{category}}}");
             }
 
-            private int GetUnicodeCategoryEndIndex()
-            {
-                int endIndex = index;
-                while (regex[endIndex] != '}')
-                {
-                    ++endIndex;
-                }
-                return endIndex;
-            }
-
-            private IExpression ParseCharacterGroup()
+            private IContainer ParseCharacterGroup(IContainer container)
             {
                 IExpression current = ParseCharacterGroupInternal();
                 ++index;
                 current = Quantify(current);
-                var next = Parse();
-                if (next == null)
-                {
-                    return current;
-                }
-                return Expression.Of(current, next);
+                container.Add(current);
+                return Parse(container);
             }
 
             private ICharacterGroup ParseCharacterGroupInternal()
@@ -260,17 +231,13 @@ namespace RegexUp
                 return Range.For(firstChar, lastChar);
             }
 
-            private IExpression ParseGroup()
+            private IContainer ParseGroup(IContainer container)
             {
                 IExpression current = ParseGroupInternal();
                 ++index; // swallow ')'
                 current = Quantify(current);
-                var next = Parse();
-                if (next == null)
-                {
-                    return current;
-                }
-                return Expression.Of(current, next);
+                container.Add(current);
+                return Parse(container);
             }
 
             private IGroup ParseGroupInternal()
@@ -291,9 +258,9 @@ namespace RegexUp
                 switch (nextChar)
                 {
                     case '\'': return ParseCaptureGroupOrBalanceGroup(ParseCaptureGroupName('\'', index + 1), true);
-                    case '!': return ParseNegativeLookupaheadGroup();
+                    case '!': return ParseNegativeLoopaheadGroup();
                     case ':': return ParseNonCaptureGroup();
-                    case '=': return ParsePositiveLookupaheadGroup();
+                    case '=': return ParsePositiveLookaheadGroup();
                     case '<': return ParseNamedCaptureGroupBalanceGroupOrLookupbehindGroup();
                     case '>': return ParseNonbacktrackingAssertion();
                     case '(': throw new NotImplementedException();
@@ -311,24 +278,26 @@ namespace RegexUp
             private INonbacktrackingGroup ParseNonbacktrackingAssertion()
             {
                 ++index; // swallow the '>'
-                var members = Parse();
-                return members == null ? Group.Nonbacktracking.Of() : Group.Nonbacktracking.Of(members);
+                var group = new NonbacktrackingGroup();
+                Parse(group);
+                return group;
             }
 
             private IGroup ParseCaptureGroupOrBalanceGroup(string name, bool useQuotes)
             {
-                var members = Parse();
                 var names = name?.Split(new[] { '-' }, 2);
                 if (name == null || names.Length == 1)
                 {
-                    var options = new CaptureGroupOptions() { Name = name, UseQuotes = useQuotes };
-                    return members == null ? Group.Capture.Of(options) : Group.Capture.Of(options, members);
+                    var group = new CaptureGroup() { Name = name, UseQuotes = useQuotes };
+                    Parse(group);
+                    return group;
                 }
                 else
                 {
                     var (current, previous) = (names[0], names[1]);
-                    var options = new BalanceGroupOptions() { UseQuotes = useQuotes };
-                    return members == null ? Group.Balanced.Of(current, previous, options) : Group.Balanced.Of(current, previous, options, members);
+                    var group = new BalancedGroup() { Current = current, Previous = previous, UseQuotes = useQuotes };
+                    Parse(group);
+                    return group;
                 }
             }
 
@@ -343,8 +312,9 @@ namespace RegexUp
             private INonCaptureGroup ParseNonCaptureGroup()
             {
                 ++index; // swallow ':'
-                var members = Parse();
-                return members == null ? Group.NonCapture.Of() : Group.NonCapture.Of(members);
+                var group = new NonCaptureGroup();
+                Parse(group);
+                return group;
             }
 
             private IGroup ParseNamedCaptureGroupBalanceGroupOrLookupbehindGroup()
@@ -353,38 +323,42 @@ namespace RegexUp
                 char nextChar = regex[index];
                 switch (nextChar)
                 {
-                    case '!': return ParseNegativeLookupbehindGroup();
-                    case '=': return ParsePositiveLookupbehindGroup();
+                    case '!': return ParseNegativeLookbehindGroup();
+                    case '=': return ParsePositiveLookbehindGroup();
                     default: return ParseCaptureGroupOrBalanceGroup(ParseCaptureGroupName('>', index), false);
                 }
             }
 
-            private INegativeLookbehindAssertionGroup ParseNegativeLookupbehindGroup()
+            private INegativeLookbehindAssertionGroup ParseNegativeLookbehindGroup()
             {
                 ++index; // swallow the '!'
-                var members = Parse();
-                return members == null ? Group.LookbehindAssertions.Negative.Of() : Group.LookbehindAssertions.Negative.Of(members);
+                var group = new NegativeLookbehindAssertionGroup();
+                Parse(group);
+                return group;
             }
 
-            private IPositiveLookbehindAssertionGroup ParsePositiveLookupbehindGroup()
+            private IPositiveLookbehindAssertionGroup ParsePositiveLookbehindGroup()
             {
                 ++index; // swallow the '='
-                var members = Parse();
-                return members == null ? Group.LookbehindAssertions.Positive.Of() : Group.LookbehindAssertions.Positive.Of(members);
+                var group = new PositiveLookbehindAssertionGroup();
+                Parse(group);
+                return group;
             }
 
-            private INegativeLookaheadAssertionGroup ParseNegativeLookupaheadGroup()
+            private INegativeLookaheadAssertionGroup ParseNegativeLoopaheadGroup()
             {
                 ++index; // swallow the '!'
-                var members = Parse();
-                return members == null ? Group.LookaheadAssertions.Negative.Of() : Group.LookaheadAssertions.Negative.Of(members);
+                var group = new NegativeLookaheadAssertionGroup();
+                Parse(group);
+                return group;
             }
 
-            private IPositiveLookaheadAssertionGroup ParsePositiveLookupaheadGroup()
+            private IPositiveLookaheadAssertionGroup ParsePositiveLookaheadGroup()
             {
                 ++index; // swallow the '='
-                var members = Parse();
-                return members == null ? Group.LookaheadAssertions.Positive.Of() : Group.LookaheadAssertions.Positive.Of(members);
+                var group = new PositiveLookaheadAssertionGroup();
+                Parse(group);
+                return group;
             }
 
             private IOptionsGroup ParseOptionsGroup()
@@ -406,8 +380,9 @@ namespace RegexUp
                     ++index;
                 }
                 ++index; // swallow ':'
-                var members = Parse();
-                return members == null ? Group.Options.Of(enabled, disabled) : Group.Options.Of(enabled, disabled, members);
+                var group = new OptionsGroup() { EnabledOptions = enabled, DisabledOptions = disabled };
+                Parse(group);
+                return group;
             }
 
             private GroupRegexOptions GetOption()
@@ -511,6 +486,29 @@ namespace RegexUp
                 int max = Int32.Parse(maxString);
                 index = maxEndIndex + 1; // swallow the }
                 return ValueTuple.Create(min, max);
+            }
+
+            private IContainer ParseAlternation(IContainer container)
+            {
+                ++index; // swallow '|'
+                var alternation = new Alternation();
+                alternation.Add((IExpression)container);
+
+                var rightContainer = new Expression();
+                var right = Parse(rightContainer);
+                if (right is IAlternation rightAlternation)
+                {
+                    foreach (var alternative in rightAlternation.Alternatives)
+                    {
+                        alternation.Add(alternative);
+                    }
+                }
+                else
+                {
+                    alternation.Add((IExpression)right);
+                }
+
+                return alternation;
             }
 
             private int GetNumberEndIndexWithWhitespace()

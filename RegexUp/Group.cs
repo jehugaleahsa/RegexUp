@@ -8,7 +8,7 @@ namespace RegexUp
     /// <summary>
     /// Provides factory methods for creating different groups.
     /// </summary>
-    public abstract class Group : IGroup, IExpressionEncoder
+    public abstract class Group : IGroup, IContainer, IExpressionEncoder
     {
         /// <summary>
         /// Provides factory methods for creating capture groups.
