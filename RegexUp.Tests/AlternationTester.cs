@@ -30,7 +30,7 @@ namespace RegexUp.Tests
         {
             var regex = RegularExpression.Of(
                 Group.Capture.Of(new CaptureGroupOptions() { Name = "A" }, Quantifiers.OneOrMore(Literal.For("A"))), 
-                Alternation.Conditional.ByCapture("A", Literal.For("Abc"), Literal.For("Xyz"))
+                Alternation.Conditional.ByExpression(Literal.For("A"), Literal.For("Abc"), Literal.For("Xyz"))
             ).ToRegex();
             Assert.AreEqual("(?<A>A+)(?(A)Abc|Xyz)", regex.ToString());
         }

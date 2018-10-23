@@ -61,66 +61,9 @@ namespace RegexUp
                 {
                     throw new ArgumentNullException(nameof(yes));
                 }
-                var alternation = new ExpressionBasedConditionalAlternation()
+                var alternation = new ConditionalAlternation()
                 {
                     Expression = expression,
-                    YesOption = yes,
-                    NoOption = no
-                };
-                return alternation;
-            }
-
-            /// <summary>
-            /// Creates an alternation that tries to match the 'yes' option if the capture corresponding
-            /// to the given number was matched.
-            /// </summary>
-            /// <param name="number">The number of the capture group that must be matched in order for the 'yes' alternative to be matched.</param>
-            /// <param name="yes">The alternative to match if the capture group is matched.</param>
-            /// <param name="no">The alternative to match if the capture group is not matched.</param>
-            /// <returns>The alternation.</returns>
-            public static ICaptureBasedConditionalAlternation ByCapture(int number, IExpression yes, IExpression no)
-            {
-                if (number < 1)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(number), number, Resources.InvalidBackreferenceNumber);
-                }
-                if (yes == null)
-                {
-                    throw new ArgumentNullException(nameof(yes));
-                }
-                var alternation = new CaptureBasedConditionalAlternation()
-                {
-                    Name = number.ToString(),
-                    IsNamed = false,
-                    YesOption = yes,
-                    NoOption = no
-                };
-                return alternation;
-            }
-
-            /// <summary>
-            /// Creates an alternation that tries to match the 'yes' option if the capture corresponding
-            /// to the given name was matched.
-            /// </summary>
-            /// <param name="name">The name of the capture group that must be matched in order for the 'yes' alternative to be matched.</param>
-            /// <param name="yes">The alternative to match if the capture group is matched.</param>
-            /// <param name="no">The alternative to match if the capture group is not matched.</param>
-            /// <returns>The alternation.</returns>
-            public static ICaptureBasedConditionalAlternation ByCapture(string name, IExpression yes, IExpression no)
-            {
-                if (String.IsNullOrWhiteSpace(name))
-                {
-                    throw new ArgumentException(Resources.InvalidCaptureGroupName, nameof(name));
-                }
-                Group.ValidateCaptureGroupName(nameof(name), name);
-                if (yes == null)
-                {
-                    throw new ArgumentNullException(nameof(yes));
-                }
-                var alternation = new CaptureBasedConditionalAlternation()
-                {
-                    Name = name,
-                    IsNamed = true,
                     YesOption = yes,
                     NoOption = no
                 };

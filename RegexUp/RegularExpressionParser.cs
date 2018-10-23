@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RegexUp
 {
@@ -245,7 +246,7 @@ namespace RegexUp
                 return Parse(container);
             }
 
-            private IGroup ParseGroupInternal()
+            private IExpression ParseGroupInternal()
             {
                 ++index; // swallow '('
                 char nextChar = regex[index];
@@ -256,7 +257,7 @@ namespace RegexUp
                 }
             }
 
-            private IGroup ParseSpecialGroup()
+            private IExpression ParseSpecialGroup()
             {
                 ++index;
                 char nextChar = regex[index];
@@ -268,7 +269,7 @@ namespace RegexUp
                     case '=': return ParsePositiveLookaheadGroup();
                     case '<': return ParseNamedCaptureGroupBalanceGroupOrLookupbehindGroup();
                     case '>': return ParseNonbacktrackingAssertion();
-                    case '(': throw new NotImplementedException();
+                    case '(': return ParseConditionalAlternation();
                     case 'i':
                     case 'm':
                     case 'n':
@@ -278,16 +279,6 @@ namespace RegexUp
                         return ParseOptionsGroup();
                     default: throw new InvalidOperationException();
                 }
-            }
-
-            private INonbacktrackingGroup ParseNonbacktrackingAssertion()
-            {
-                ++index; // swallow the '>'
-                IContainer container = new Expression();
-                container = Parse(container);
-                var group = new NonbacktrackingGroup();
-                InheritMembers(group, container);
-                return group;
             }
 
             private IGroup ParseCaptureGroupOrBalanceGroup(string name, bool useQuotes)
@@ -420,6 +411,46 @@ namespace RegexUp
                     case 'x': return GroupRegexOptions.IgnorePatternWhitespace;
                     default: throw new InvalidOperationException();
                 }
+            }
+
+            private INonbacktrackingGroup ParseNonbacktrackingAssertion()
+            {
+                ++index; // swallow the '>'
+                IContainer container = new Expression();
+                container = Parse(container);
+                var group = new NonbacktrackingGroup();
+                InheritMembers(group, container);
+                return group;
+            }
+
+            private IExpression ParseConditionalAlternation()
+            {
+                ++index; // swallow '('
+                IContainer expressionOrName = new Expression();
+                expressionOrName = Parse(expressionOrName);
+                ++index; // swallow ')'
+
+                IContainer container = new Expression();
+                container = Parse(container);
+                
+                IExpression yes = null;
+                IExpression no = null;
+                if (container is IAlternation alternation)
+                {
+                    yes = alternation.Alternatives.First();
+                    no = alternation.Alternatives.Skip(1).FirstOrDefault();
+                }
+                else
+                {
+                    yes = (IExpression)container;
+                }
+                var group = new ConditionalAlternation()
+                {
+                    Expression = (IExpression)expressionOrName,
+                    YesOption = yes,
+                    NoOption = no
+                };
+                return group;
             }
 
             private IExpression Quantify(IExpression expression)

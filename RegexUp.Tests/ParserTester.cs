@@ -554,6 +554,18 @@ namespace RegexUp.Tests
             RoundTripHelper.AssertRoundTrips(@"a(b|(c|d|e)|f)g");
         }
 
+        [TestMethod]
+        public void Parse_ConditionalAlternation_NoAlternative()
+        {
+            RoundTripHelper.AssertRoundTrips(@"(?(a)a)");
+        }
+
+        [TestMethod]
+        public void Parse_ConditionalAlternation_WithAlternative()
+        {
+            RoundTripHelper.AssertRoundTrips(@"(?(a)a|b)");
+        }
+
         #endregion
     }
 }

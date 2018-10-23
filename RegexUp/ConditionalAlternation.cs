@@ -6,9 +6,9 @@ namespace RegexUp
     /// <summary>
     /// Provides factory methods for creating alternations.
     /// </summary>
-    internal sealed class ExpressionBasedConditionalAlternation : IExpressionBasedConditionalAlternation, IExpressionEncoder
+    internal sealed class ConditionalAlternation : IExpressionBasedConditionalAlternation, IExpressionEncoder
     {
-        public ExpressionBasedConditionalAlternation()
+        public ConditionalAlternation()
         {
         }
         

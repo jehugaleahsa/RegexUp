@@ -58,5 +58,7 @@ namespace RegexUp
             string encoded = String.Join(String.Empty, members.Cast<IExpressionEncoder>().Select(e => e.Encode(context)));
             return encoded;
         }
+
+        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group);
     }
 }

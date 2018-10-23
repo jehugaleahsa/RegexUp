@@ -428,6 +428,8 @@ namespace RegexUp
         {
         }
 
+        public IEnumerable<IExpression> Members => members;
+
         bool IExpression.NeedsGroupedToQuantify()
         {
             return false;
