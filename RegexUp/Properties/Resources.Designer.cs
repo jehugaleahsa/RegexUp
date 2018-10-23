@@ -88,6 +88,15 @@ namespace RegexUp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An inline comment cannot contain a right parenthesis..
+        /// </summary>
+        internal static string InvalidComment {
+            get {
+                return ResourceManager.GetString("InvalidComment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A control character must be a letter between A and Z..
         /// </summary>
         internal static string InvalidControlCharacter {

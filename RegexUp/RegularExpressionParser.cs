@@ -313,6 +313,7 @@ namespace RegexUp
                     case '<': return ParseNamedCaptureGroupBalanceGroupOrLookupbehindGroup();
                     case '>': return ParseNonbacktrackingAssertion();
                     case '(': return ParseConditionalAlternation();
+                    case '#': return ParseInlineComment();
                     case 'i':
                     case 'm':
                     case 'n':
@@ -501,6 +502,15 @@ namespace RegexUp
                     NoOption = no
                 };
                 return group;
+            }
+
+            private IExpression ParseInlineComment()
+            {
+                ++index; // swallow the '#'
+                int endIndex = regex.IndexOf(')', index);
+                var comment = regex.Substring(index, endIndex - index);
+                index = endIndex;
+                return InlineComment.For(comment);
             }
 
             private IExpression Quantify(IExpression expression)

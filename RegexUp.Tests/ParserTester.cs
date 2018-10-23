@@ -619,5 +619,33 @@ namespace RegexUp.Tests
         }
 
         #endregion
+
+        #region InlineComment
+
+        [TestMethod]
+        public void Parse_InlineComment_AtTheBeginning()
+        {
+            RoundTripHelper.AssertRoundTrips(@"(?#Start)ab");
+        }
+
+        [TestMethod]
+        public void Parse_InlineComment_InTheMiddle()
+        {
+            RoundTripHelper.AssertRoundTrips(@"a(?#Middle)b");
+        }
+
+        [TestMethod]
+        public void Parse_InlineComment_AtTheEnd()
+        {
+            RoundTripHelper.AssertRoundTrips(@"ab(?#End)");
+        }
+
+        [TestMethod]
+        public void Parse_InlineComment_WithWhitespace()
+        {
+            RoundTripHelper.AssertRoundTrips(@"a(?# I contain whitespace!! )b");
+        }
+
+        #endregion
     }
 }

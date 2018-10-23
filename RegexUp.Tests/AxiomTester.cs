@@ -99,5 +99,12 @@ namespace RegexUp.Tests
         {
             new Regex(@")");
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void InlineComment_EscapedClosingParenthesis_Illegal()
+        {
+            new Regex(@"(?#This is a message with an \) escaped parenthesis)");
+        }
     }
 }
