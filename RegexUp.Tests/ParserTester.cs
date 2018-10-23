@@ -542,6 +542,18 @@ namespace RegexUp.Tests
             RoundTripHelper.AssertRoundTrips(@"abc|def|ghi|jkl|mno|pqrs|tuv|wxyz");
         }
 
+        [TestMethod]
+        public void Parse_Alternation_InsideGroup()
+        {
+            RoundTripHelper.AssertRoundTrips(@"(a|b)");
+        }
+
+        [TestMethod]
+        public void Parse_Alternation_NestedGroups()
+        {
+            RoundTripHelper.AssertRoundTrips(@"a(b|(c|d|e)|f)g");
+        }
+
         #endregion
     }
 }

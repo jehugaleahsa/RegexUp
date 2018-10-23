@@ -8,9 +8,7 @@ namespace RegexUp
         public void Parse(RegularExpression regularExpression, string regex)
         {
             var context = new ParserContext(regex);
-            IContainer expression = new Expression();
-            expression = context.Parse(expression);
-            regularExpression.Add((IExpression)expression);
+            context.Parse(regularExpression);
         }
 
         private class ParserContext
@@ -23,7 +21,14 @@ namespace RegexUp
                 this.regex = regex;
             }
 
-            public IContainer Parse(IContainer container)
+            public void Parse(RegularExpression regularExpression)
+            {
+                IContainer container = new Expression();
+                container = Parse(container);
+                InheritMembers(regularExpression, container);
+            }
+
+            private IContainer Parse(IContainer container)
             {
                 if (index == regex.Length)
                 {
@@ -258,7 +263,7 @@ namespace RegexUp
                 switch (nextChar)
                 {
                     case '\'': return ParseCaptureGroupOrBalanceGroup(ParseCaptureGroupName('\'', index + 1), true);
-                    case '!': return ParseNegativeLoopaheadGroup();
+                    case '!': return ParseNegativeLookaheadGroup();
                     case ':': return ParseNonCaptureGroup();
                     case '=': return ParsePositiveLookaheadGroup();
                     case '<': return ParseNamedCaptureGroupBalanceGroupOrLookupbehindGroup();
@@ -278,8 +283,10 @@ namespace RegexUp
             private INonbacktrackingGroup ParseNonbacktrackingAssertion()
             {
                 ++index; // swallow the '>'
+                IContainer container = new Expression();
+                container = Parse(container);
                 var group = new NonbacktrackingGroup();
-                Parse(group);
+                InheritMembers(group, container);
                 return group;
             }
 
@@ -288,15 +295,19 @@ namespace RegexUp
                 var names = name?.Split(new[] { '-' }, 2);
                 if (name == null || names.Length == 1)
                 {
+                    IContainer container = new Expression();
+                    container = Parse(container);
                     var group = new CaptureGroup() { Name = name, UseQuotes = useQuotes };
-                    Parse(group);
+                    InheritMembers(group, container);
                     return group;
                 }
                 else
                 {
+                    IContainer container = new Expression();
+                    container = Parse(container);
                     var (current, previous) = (names[0], names[1]);
                     var group = new BalancedGroup() { Current = current, Previous = previous, UseQuotes = useQuotes };
-                    Parse(group);
+                    InheritMembers(group, container);
                     return group;
                 }
             }
@@ -312,8 +323,10 @@ namespace RegexUp
             private INonCaptureGroup ParseNonCaptureGroup()
             {
                 ++index; // swallow ':'
+                IContainer container = new Expression();
+                container = Parse(container);
                 var group = new NonCaptureGroup();
-                Parse(group);
+                InheritMembers(group, container);
                 return group;
             }
 
@@ -332,32 +345,40 @@ namespace RegexUp
             private INegativeLookbehindAssertionGroup ParseNegativeLookbehindGroup()
             {
                 ++index; // swallow the '!'
+                IContainer container = new Expression();
+                container = Parse(container);
                 var group = new NegativeLookbehindAssertionGroup();
-                Parse(group);
+                InheritMembers(group, container);
                 return group;
             }
 
             private IPositiveLookbehindAssertionGroup ParsePositiveLookbehindGroup()
             {
                 ++index; // swallow the '='
+                IContainer container = new Expression();
+                container = Parse(container);
                 var group = new PositiveLookbehindAssertionGroup();
-                Parse(group);
+                InheritMembers(group, container);
                 return group;
             }
 
-            private INegativeLookaheadAssertionGroup ParseNegativeLoopaheadGroup()
+            private INegativeLookaheadAssertionGroup ParseNegativeLookaheadGroup()
             {
                 ++index; // swallow the '!'
+                IContainer container = new Expression();
+                container = Parse(container);
                 var group = new NegativeLookaheadAssertionGroup();
-                Parse(group);
+                InheritMembers(group, container);
                 return group;
             }
 
             private IPositiveLookaheadAssertionGroup ParsePositiveLookaheadGroup()
             {
                 ++index; // swallow the '='
+                IContainer container = new Expression();
+                container = Parse(container);
                 var group = new PositiveLookaheadAssertionGroup();
-                Parse(group);
+                InheritMembers(group, container);
                 return group;
             }
 
@@ -380,8 +401,10 @@ namespace RegexUp
                     ++index;
                 }
                 ++index; // swallow ':'
+                IContainer container = new Expression();
+                container = Parse(container);
                 var group = new OptionsGroup() { EnabledOptions = enabled, DisabledOptions = disabled };
-                Parse(group);
+                InheritMembers(group, container);
                 return group;
             }
 
@@ -498,6 +521,9 @@ namespace RegexUp
                 var right = Parse(rightContainer);
                 if (right is IAlternation rightAlternation)
                 {
+                    // In a deeply nested alternation, this operation could be expensive.
+                    // It might make more sense to use a linked list data structure and simply
+                    // append the left-hand side to the front of the list instead.
                     foreach (var alternative in rightAlternation.Alternatives)
                     {
                         alternation.Add(alternative);
@@ -538,6 +564,21 @@ namespace RegexUp
                 OneOrMore,
                 ZeroOrOne,
                 Explicit
+            }
+
+            private static void InheritMembers(IContainer parent, IContainer child)
+            {
+                if (child is Expression expression)
+                {
+                    foreach (var subExpression in expression.Members)
+                    {
+                        parent.Add(subExpression);
+                    }
+                }
+                else
+                {
+                    parent.Add((IExpression)child);
+                }
             }
         }
     }
