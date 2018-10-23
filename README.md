@@ -7,7 +7,7 @@ This is an experimental project aimed at converting regular expressions into an 
 A future aim of this project is to systematically execute each sub-expression against an input string. This would essentially allow you to "debug" a regex to see where it is failing.
 
 ## Quick Reference
-Regular expressions are composed of a wide variety of special sequences and characters. While an regex expert might know the names for these terms, I do not expect the average developer to be familiar with them. For that reason, I will quickly list each class found in RegexUp along with some examples:
+Regular expressions are composed of a wide variety of special sequences and characters. While a .NET regex expert might know the names for each of these terms, I do not expect the average developer to be familiar with them. For that reason, I will quickly list each class found in RegexUp along with some examples:
 
 * **Literal** - `a`, `b`, `c`
 * **Alternation** - `a|b|c`
