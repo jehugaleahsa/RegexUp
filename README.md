@@ -26,7 +26,10 @@ Regular expressions are composed of a wide variety of special sequences and char
 * **PositiveLookbehindAssertion** - `(?<=a)bc`
 * **NegativeLookbehindAssertion** - `(?<!a)bc`
 * **NonbacktrackingAssertion** - `a(?>bc)?bc`
+* **InlineOptions** - `A(?i)bc`
+* **InlineComment** - `ab(?#The next character to match will be 'c'.)c`
 
+*Note*: At the time of this writing, there is no support for x-mode comments. The current implementation of the regex parser does not keep track of the current state of the regular expression, meaning it cannot tell if the `IgnorePatternWhitespace` (a.k.a, `x`) is enabled.
 
 ## Quick Example
 Regular expressions are a very compact notation. Building the same regular expressions using classes and method calls is significantly more verbose. Furthermore, manipulating objects to generate an otherwise static regular expression requires runtime overhead that's unnecessary. As such, one use case for RegexUp is to generate regular expressions in a test project and then simply copy the generated regular expression string to your production code. Another use case is if you need to build your regex at runtime based on user input.
