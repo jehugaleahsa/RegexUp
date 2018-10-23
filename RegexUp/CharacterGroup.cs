@@ -87,28 +87,27 @@ namespace RegexUp
 
         bool IExpression.NeedsGroupedToQuantify() => false;
 
-        string IExpressionEncoder.Encode(ExpressionContext context)
+        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
         {
             var parts = new List<string>() { "[" };
             if (IsNegated)
             {
                 parts.Add("^");
             }
-            for (int memberIndex = 0; memberIndex != members.Count; ++memberIndex)
-            {
-                var member = members[memberIndex];
-                parts.Add(((IExpressionEncoder)member).Encode(ExpressionContext.CharacterGroup));
-            }
+            parts.AddRange(members
+                .Cast<IExpressionEncoder>()
+                .Select((m, i) => m.Encode(ExpressionContext.CharacterGroup, i, members.Count))
+            );
             if (Exclusions != null && Exclusions.Members.Any())
             {
                 parts.Add("-");
-                parts.Add(((IExpressionEncoder)Exclusions).Encode(ExpressionContext.CharacterGroup));
+                parts.Add(((IExpressionEncoder)Exclusions).Encode(ExpressionContext.CharacterGroup, 0, 1));
             }
             parts.Add("]");
             var encoded = String.Join(String.Empty, parts);
             return encoded;
         }
 
-        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group);
+        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group, 0, 1);
     }
 }

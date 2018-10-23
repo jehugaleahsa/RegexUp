@@ -28,7 +28,7 @@ namespace RegexUp
 
         bool IExpression.NeedsGroupedToQuantify() => false;
 
-        string IExpressionEncoder.Encode(ExpressionContext context)
+        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
         {
             return OnEncode();
         }
@@ -37,7 +37,10 @@ namespace RegexUp
 
         protected virtual string EncodeMembers()
         {
-            var encoded = String.Join(String.Empty, members.Cast<IExpressionEncoder>().Select(m => m.Encode(ExpressionContext.Group)));
+            var encoded = String.Join(String.Empty, members
+                .Cast<IExpressionEncoder>()
+                .Select((m, i) => m.Encode(ExpressionContext.Group, i, members.Count))
+            );
             return encoded;
         }
 
@@ -50,6 +53,6 @@ namespace RegexUp
             members.Add(member);
         }
 
-        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group);
+        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group, 0, 1);
     }
 }

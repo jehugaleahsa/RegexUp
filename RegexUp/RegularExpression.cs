@@ -87,7 +87,10 @@ namespace RegexUp
 
         private string EncodeMembers()
         {
-            var encoded = String.Join(String.Empty, members.Cast<IExpressionEncoder>().Select(e => e.Encode(ExpressionContext.Group)));
+            var encoded = String.Join(String.Empty, members
+                .Cast<IExpressionEncoder>()
+                .Select((e, i) => e.Encode(ExpressionContext.Group, i, members.Count))
+            );
             return encoded;
         }
 

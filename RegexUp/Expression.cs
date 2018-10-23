@@ -53,12 +53,15 @@ namespace RegexUp
 
         bool IExpression.NeedsGroupedToQuantify() => members.Count > 1 || members[0].NeedsGroupedToQuantify();
 
-        string IExpressionEncoder.Encode(ExpressionContext context)
+        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
         {
-            string encoded = String.Join(String.Empty, members.Cast<IExpressionEncoder>().Select(e => e.Encode(context)));
+            string encoded = String.Join(String.Empty, members
+                .Cast<IExpressionEncoder>()
+                .Select((e, i) => e.Encode(context, i, members.Count))
+            );
             return encoded;
         }
 
-        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group);
+        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group, 0, 1);
     }
 }

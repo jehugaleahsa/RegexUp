@@ -88,11 +88,29 @@ namespace RegexUp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A control character must be a letter between A and Z..
+        /// </summary>
+        internal static string InvalidControlCharacter {
+            get {
+                return ResourceManager.GetString("InvalidControlCharacter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Encounted an unknown regex option..
         /// </summary>
         internal static string InvalidGroupOptions {
             get {
                 return ResourceManager.GetString("InvalidGroupOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A hexidecimal code must be 2 characters..
+        /// </summary>
+        internal static string InvalidHexidecimalCode {
+            get {
+                return ResourceManager.GetString("InvalidHexidecimalCode", resourceCulture);
             }
         }
         
@@ -106,11 +124,29 @@ namespace RegexUp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An octal code cannot exceed 3 characters..
+        /// </summary>
+        internal static string InvalidOctalCode {
+            get {
+                return ResourceManager.GetString("InvalidOctalCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Encountered an invalid character range..
         /// </summary>
         internal static string InvalidRange {
             get {
                 return ResourceManager.GetString("InvalidRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A unicode code must be 4 characters..
+        /// </summary>
+        internal static string InvalidUnicodeCode {
+            get {
+                return ResourceManager.GetString("InvalidUnicodeCode", resourceCulture);
             }
         }
         

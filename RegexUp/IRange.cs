@@ -8,11 +8,11 @@
         /// <summary>
         /// Gets the first character in the range.
         /// </summary>
-        char First { get; }
+        ICharacterGroupMember First { get; }
 
         /// <summary>
         /// Gets the last character in the range.
         /// </summary>
-        char Last { get; }
+        ICharacterGroupMember Last { get; }
     }
 }

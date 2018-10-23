@@ -19,28 +19,41 @@ namespace RegexUp
         {
             if (last < first)
             {
-                throw new ArgumentException(Resources.InvalidRange, nameof(last));
+                throw new ArgumentOutOfRangeException(nameof(last), last, Resources.InvalidMinMax);
             }
+            return new Range(Literal.For(first), Literal.For(last));
+        }
+
+        /// <summary>
+        /// Creates a range of characters.
+        /// </summary>
+        /// <param name="first">The first character in the range.</param>
+        /// <param name="last">The last character in the range.</param>
+        /// <returns>The range.</returns>
+        public static IRange For(ICharacterGroupMember first, ICharacterGroupMember last)
+        {
             return new Range(first, last);
         }
 
-        private Range(char first, char last)
+        private Range(ICharacterGroupMember first, ICharacterGroupMember last)
         {
             First = first;
             Last = last;
         }
 
-        public char First { get; }
+        public ICharacterGroupMember First { get; }
 
-        public char Last { get; }
+        public ICharacterGroupMember Last { get; }
 
-        string IExpressionEncoder.Encode(ExpressionContext context)
+        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
         {
-            var parts = new List<string>() { First.ToString(), "-", Last.ToString() };
+            var first = ((IExpressionEncoder)First).Encode(ExpressionContext.CharacterGroup, 0, 2);
+            var last = ((IExpressionEncoder)Last).Encode(ExpressionContext.CharacterGroup, 1, 2);
+            var parts = new List<string>() { first, "-", last };
             var encoded = String.Join(String.Empty, parts);
             return encoded;
         }
 
-        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.CharacterGroup);
+        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.CharacterGroup, 0, 1);
     }
 }

@@ -126,14 +126,26 @@
   <data name="InvalidCaptureGroupName" xml:space="preserve">
     <value>The capture group name is invalid.</value>
   </data>
+  <data name="InvalidControlCharacter" xml:space="preserve">
+    <value>A control character must be a letter between A and Z.</value>
+  </data>
   <data name="InvalidGroupOptions" xml:space="preserve">
     <value>Encounted an unknown regex option.</value>
+  </data>
+  <data name="InvalidHexidecimalCode" xml:space="preserve">
+    <value>A hexidecimal code must be 2 characters.</value>
   </data>
   <data name="InvalidMinMax" xml:space="preserve">
     <value>The minimum value must be less than or equal to the maximum value.</value>
   </data>
+  <data name="InvalidOctalCode" xml:space="preserve">
+    <value>An octal code cannot exceed 3 characters.</value>
+  </data>
   <data name="InvalidRange" xml:space="preserve">
     <value>Encountered an invalid character range.</value>
+  </data>
+  <data name="InvalidUnicodeCode" xml:space="preserve">
+    <value>A unicode code must be 4 characters.</value>
   </data>
   <data name="PreviousGroupNameBlank" xml:space="preserve">
     <value>A previous group name must be specified for the balance group.</value>

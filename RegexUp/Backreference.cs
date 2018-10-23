@@ -50,7 +50,7 @@ namespace RegexUp
 
         bool IExpression.NeedsGroupedToQuantify() => false;
 
-        string IExpressionEncoder.Encode(ExpressionContext context)
+        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
         {
             if (IsNamed)
             {

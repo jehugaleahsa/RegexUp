@@ -46,22 +46,22 @@ namespace RegexUp
 
         public bool NeedsGroupedToQuantify() => false;
 
-        string IExpressionEncoder.Encode(ExpressionContext context)
+        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
         {
             var parts = new List<string>() { "(?(" };
-            parts.Add(((IExpressionEncoder)Expression).Encode(ExpressionContext.Group));
+            parts.Add(((IExpressionEncoder)Expression).Encode(ExpressionContext.Group, 0, 1));
             parts.Add( ")");
-            parts.Add(((IExpressionEncoder)YesOption).Encode(ExpressionContext.Alternation));
+            parts.Add(((IExpressionEncoder)YesOption).Encode(ExpressionContext.Alternation, 0, 2));
             if (NoOption != null)
             {
                 parts.Add("|");
-                parts.Add(((IExpressionEncoder)NoOption).Encode(ExpressionContext.Alternation));
+                parts.Add(((IExpressionEncoder)NoOption).Encode(ExpressionContext.Alternation, 1, 2));
             }
             parts.Add(")");
             var encoded = String.Join(String.Empty, parts);
             return encoded;
         }
 
-        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group);
+        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group, 0, 1);
     }
 }

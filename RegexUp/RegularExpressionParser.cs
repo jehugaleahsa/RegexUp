@@ -123,7 +123,10 @@ namespace RegexUp
                     case '+': return CharacterEscapes.Plus;
                     case '?': return CharacterEscapes.QuestionMark;
                     case '\\': return CharacterEscapes.Backslash;
-                    case '0':
+                    case 'x': return ParseHexidecimalEscape();
+                    case 'c': return ParseControlCharacterEscape();
+                    case 'u': return ParseUnicodeCharacterEscape();
+                    case '0': return ParseOctalEscape();
                     case '1':
                     case '2':
                     case '3':
@@ -138,12 +141,45 @@ namespace RegexUp
                 }
             }
 
+            private IExpression ParseHexidecimalEscape()
+            {
+                ++index; // swallow 'x'
+                int endIndex = GetHexidecimalNumberEndIndex(Math.Min(index + 2, regex.Length));
+                string numberString = regex.Substring(index, endIndex - index);
+                index = endIndex - 1;
+                return CharacterEscapes.Hexidecimal(numberString);
+            }
+
+            private IExpression ParseControlCharacterEscape()
+            {
+                ++index; // swallow 'c'
+                char controlCharacter = regex[index];
+                return CharacterEscapes.ControlCharacter(controlCharacter);
+            }
+
+            private IExpression ParseUnicodeCharacterEscape()
+            {
+                ++index; // swallow 'u'
+                int endIndex = GetHexidecimalNumberEndIndex(Math.Min(index + 4, regex.Length));
+                string numberString = regex.Substring(index, endIndex - index);
+                index = endIndex - 1;
+                return CharacterEscapes.Unicode(numberString);
+            }
+
+            private IExpression ParseOctalEscape()
+            {
+                int endIndex = GetNumberEndIndex(Math.Min(index + 3, regex.Length));
+                string numberString = regex.Substring(index, endIndex - index);
+                index = endIndex - 1;
+                return CharacterEscapes.Octal(numberString);
+            }
+
             private IExpression ParseNamedBackreference()
             {
-                ++index;
+                ++index; // swallow 'k'
                 bool useQuotes = regex[index] == '\'';
                 char closingChar = useQuotes ? '\'' : '>';
-                ++index;
+                ++index; // swallow opening char
                 int endIndex = regex.IndexOf(closingChar, index);
                 string name = regex.Substring(index, endIndex - index);
                 index = endIndex;
@@ -152,8 +188,9 @@ namespace RegexUp
 
             private IExpression ParseNumberedBackreference()
             {
-                int endIndex = GetNumberEndIndex();
+                int endIndex = GetNumberEndIndex(regex.Length);
                 string numberString = regex.Substring(index, endIndex - index);
+                index = endIndex - 1;
                 int number = Int32.Parse(numberString);
                 return Backreference.For(number);
             }
@@ -189,7 +226,7 @@ namespace RegexUp
                 ICharacterGroup exclusions = null;
                 while (!isDone)
                 {
-                    char nextChar = regex[index];
+                    var nextChar = regex[index];
                     switch (nextChar)
                     {
                         case ']':
@@ -209,18 +246,15 @@ namespace RegexUp
                             else
                             {
                                 var lastMember = members[members.Count - 1];
-                                var range = ParseRange((Literal)lastMember);
+                                var range = ParseRange(lastMember);
                                 members.RemoveAt(members.Count - 1);
                                 members.Add(range);
                             }
                             ++index;
                             break;
-                        case '\\':
-                            members.Add((ICharacterGroupMember)ParseEscapeSequenceInternal(ExpressionContext.CharacterGroup));
-                            ++index;
-                            break;
-                        default:
-                            members.Add(Literal.For(nextChar));
+                        default:                            
+                            var member = ParseCharacterGroupMember();
+                            members.Add(member);
                             ++index;
                             break;
                     }
@@ -229,12 +263,21 @@ namespace RegexUp
                 return CharacterGroup.From(options, members);
             }
 
-            private ICharacterGroupMember ParseRange(Literal startLiteral)
+            private ICharacterGroupMember ParseRange(ICharacterGroupMember startLiteral)
             {
-                char firstChar = startLiteral.Value;
                 ++index; // swallow '-'
-                char lastChar = regex[index];
-                return Range.For(firstChar, lastChar);
+                var lastLiteral = ParseCharacterGroupMember();
+                return Range.For(startLiteral, lastLiteral);
+            }
+
+            private ICharacterGroupMember ParseCharacterGroupMember()
+            {
+                char nextChar = regex[index];
+                switch (nextChar)
+                {
+                    case '\\': return (ICharacterGroupMember)ParseEscapeSequenceInternal(ExpressionContext.CharacterGroup);
+                    default: return Literal.For(nextChar);
+                }
             }
 
             private IContainer ParseGroup(IContainer container)
@@ -571,30 +614,62 @@ namespace RegexUp
             private int GetNumberEndIndexWithWhitespace()
             {
                 int endIndex = index;
-                while (Char.IsWhiteSpace(regex[endIndex]) || Char.IsDigit(regex[endIndex]))
+                while (endIndex != regex.Length && Char.IsWhiteSpace(regex[endIndex]) || Char.IsDigit(regex[endIndex]))
                 {
                     ++endIndex;
                 }
                 return endIndex;
             }
 
-            private int GetNumberEndIndex()
+            private int GetNumberEndIndex(int maxIndex)
             {
                 int endIndex = index;
-                while (Char.IsDigit(regex[endIndex]))
+                while (endIndex != maxIndex && Char.IsDigit(regex[endIndex]))
                 {
                     ++endIndex;
                 }
                 return endIndex;
             }
 
-            private enum QuantifierType
+            private int GetHexidecimalNumberEndIndex(int maxIndex)
             {
-                None,
-                ZeroOrMore,
-                OneOrMore,
-                ZeroOrOne,
-                Explicit
+                int endIndex = index;
+                while (endIndex != maxIndex && IsHexidecimalDigit(regex[endIndex]))
+                {
+                    ++endIndex;
+                }
+                return endIndex;
+            }
+
+            private static bool IsHexidecimalDigit(char character)
+            {
+                switch (character)
+                {
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                    case 'A':
+                    case 'a':
+                    case 'B':
+                    case 'b':
+                    case 'C':
+                    case 'c':
+                    case 'D':
+                    case 'd':
+                    case 'E':
+                    case 'e':
+                    case 'F':
+                    case 'f':
+                        return true;
+                    default: return false;
+                }
             }
 
             private static void InheritMembers(IContainer parent, IContainer child)
@@ -610,6 +685,15 @@ namespace RegexUp
                 {
                     parent.Add((IExpression)child);
                 }
+            }
+
+            private enum QuantifierType
+            {
+                None,
+                ZeroOrMore,
+                OneOrMore,
+                ZeroOrOne,
+                Explicit
             }
         }
     }

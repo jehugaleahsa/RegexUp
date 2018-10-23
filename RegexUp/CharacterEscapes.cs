@@ -1,4 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
+using RegexUp.Properties;
 
 namespace RegexUp
 {
@@ -117,6 +119,66 @@ namespace RegexUp
         public static ICharacterEscape For(char value)
         {
             return escapes.GetOrAdd($@"\{value}", (key) => new CharacterEscape(key)); 
+        }
+
+        /// <summary>
+        /// Creates an octal character escape.
+        /// </summary>
+        /// <param name="code">The textual representation of the octal code.</param>
+        /// <returns>The octal escape.</returns>
+        public static IOctalEscape Octal(string code)
+        {
+            if (code.Length == 0 || code.Length > 3)
+            {
+                throw new ArgumentOutOfRangeException(nameof(code), code, Resources.InvalidOctalCode);
+            }
+            int value = Convert.ToInt32(code, 8);
+            return new OctalEscape(value, code.Length);
+        }
+
+        /// <summary>
+        /// Creates an hexidecimal character escape.
+        /// </summary>
+        /// <param name="code">The textual representation of the hexidecimal code.</param>
+        /// <returns>The hexidecimal escape.</returns>
+        public static IHexidecimalEscape Hexidecimal(string code)
+        {
+            if (code.Length != 2)
+            {
+                throw new ArgumentOutOfRangeException(nameof(code), code, Resources.InvalidHexidecimalCode);
+            }
+            int value = Convert.ToInt32(code, 16);
+            return new HexidecimalEscape(value);
+        }
+
+        /// <summary>
+        /// Creates a control character escape.
+        /// </summary>
+        /// <param name="controlCharacter">The control character (between A and Z).</param>
+        /// <returns>The control character escape.</returns>
+        public static IControlCharacterEscape ControlCharacter(char controlCharacter)
+        {
+            controlCharacter = Char.ToUpperInvariant(controlCharacter);
+            if (controlCharacter < 'A' || controlCharacter > 'Z')
+            {
+                throw new ArgumentOutOfRangeException(nameof(controlCharacter), controlCharacter, Resources.InvalidControlCharacter);
+            }
+            return new ControlCharacterEscape(controlCharacter);
+        }
+
+        /// <summary>
+        /// Creates a unicode character escape.
+        /// </summary>
+        /// <param name="code">The textual representation of the unicode code.</param>
+        /// <returns>The unicode character escape.</returns>
+        public static IUnicodeEscape Unicode(string code)
+        {
+            if (code.Length != 4)
+            {
+                throw new ArgumentOutOfRangeException(nameof(code), code, Resources.InvalidUnicodeCode);
+            }
+            int value = Convert.ToInt32(code, 16);
+            return new UnicodeEscape(value);
         }
     }
 }

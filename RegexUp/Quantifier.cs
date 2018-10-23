@@ -22,7 +22,7 @@ namespace RegexUp
 
         public bool NeedsGroupedToQuantify() => false;
 
-        public string Encode(ExpressionContext context)
+        public string Encode(ExpressionContext context, int position, int length)
         {
             string childEncoded = EncodeChildExpression(context);
             if (String.IsNullOrWhiteSpace(childEncoded))
@@ -43,11 +43,11 @@ namespace RegexUp
             if (expression.NeedsGroupedToQuantify())
             {
                 var group = NonCaptureGroup.Of(expression);
-                return ((IExpressionEncoder)group).Encode(ExpressionContext.Group);
+                return ((IExpressionEncoder)group).Encode(ExpressionContext.Group, 0, 1);
             }
-            return ((IExpressionEncoder)expression).Encode(context);
+            return ((IExpressionEncoder)expression).Encode(context, 0, 1);
         }
 
-        public override string ToString() => Encode(ExpressionContext.Group);
+        public override string ToString() => Encode(ExpressionContext.Group, 0, 1);
     }
 }

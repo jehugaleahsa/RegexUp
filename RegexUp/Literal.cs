@@ -56,7 +56,7 @@ namespace RegexUp
 
         bool IExpression.NeedsGroupedToQuantify() => false;
 
-        string IExpressionEncoder.Encode(ExpressionContext context)
+        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
         {
             if (Char.IsWhiteSpace(Value))
             {
@@ -67,8 +67,8 @@ namespace RegexUp
                 switch (Value)
                 {
                     case '\\': return @"\\";
-                    case '-': return @"\-";
-                    case '^': return @"\^";
+                    case '-': return (position == length - 1) ? Value.ToString() : @"\-";
+                    case '^': return (position == 0) ? @"\^" : Value.ToString();
                     default: return Value.ToString();
                 }
             }

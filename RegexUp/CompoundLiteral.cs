@@ -19,9 +19,12 @@ namespace RegexUp
             literals.Add(literal);
         }
 
-        public string Encode(ExpressionContext context)
+        public string Encode(ExpressionContext context, int position, int length)
         {
-            var encoded = String.Join(String.Empty, literals.Cast<IExpressionEncoder>().Select(e => e.Encode(context)));
+            var encoded = String.Join(String.Empty, literals
+                .Cast<IExpressionEncoder>()
+                .Select((e, i) => e.Encode(context, i, literals.Count))
+            );
             return encoded;
         }
 

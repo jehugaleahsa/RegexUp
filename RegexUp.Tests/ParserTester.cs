@@ -238,6 +238,30 @@ namespace RegexUp.Tests
             RoundTripHelper.AssertRoundTrips(@"\t*");
         }
 
+        [TestMethod]
+        public void Parse_CharacterEscape_OctalCode()
+        {
+            RoundTripHelper.AssertRoundTrips(@"\077");
+        }
+
+        [TestMethod]
+        public void Parse_CharacterEscape_HexidecimalCode()
+        {
+            RoundTripHelper.AssertRoundTrips(@"\x34");
+        }
+
+        [TestMethod]
+        public void Parse_CharacterEscape_ControlCharacter()
+        {
+            RoundTripHelper.AssertRoundTrips(@"\cC");
+        }
+
+        [TestMethod]
+        public void Parse_CharacterEscape_UnicodeCharacter()
+        {
+            RoundTripHelper.AssertRoundTrips(@"\u0034");
+        }
+
         #endregion
 
         #region Unicode Categories
@@ -331,13 +355,19 @@ namespace RegexUp.Tests
         [TestMethod]
         public void Parse_CharacterGroup_TrailingDash()
         {
-            RoundTripHelper.AssertRoundTrips("[a-]", @"[a\-]");
+            RoundTripHelper.AssertRoundTrips("[a-]");
         }
 
         [TestMethod]
         public void Parse_CharacterGroup_TrailingDash_Negated()
         {
-            RoundTripHelper.AssertRoundTrips("[^a-]", @"[^a\-]");
+            RoundTripHelper.AssertRoundTrips("[^a-]");
+        }
+
+        [TestMethod]
+        public void Parse_CharacterGroup_TrailingDash_EscapedUnnecessarily()
+        {
+            RoundTripHelper.AssertRoundTrips(@"[^a\-]");
         }
 
         [TestMethod]

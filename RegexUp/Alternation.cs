@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using RegexUp.Properties;
 
 namespace RegexUp
 {
@@ -61,12 +60,15 @@ namespace RegexUp
             return alternatives.Count > 1 || alternatives[0].NeedsGroupedToQuantify();
         }
 
-        string IExpressionEncoder.Encode(ExpressionContext context)
+        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
         {
-            string encoded = String.Join("|", alternatives.Cast<IExpressionEncoder>().Select(e => e.Encode(ExpressionContext.Alternation)));
+            string encoded = String.Join("|", alternatives
+                .Cast<IExpressionEncoder>()
+                .Select((e, i) => e.Encode(ExpressionContext.Alternation, i, alternatives.Count))
+            );
             return encoded;
         }
 
-        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group);
+        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group, 0, 1);
     }
 }
