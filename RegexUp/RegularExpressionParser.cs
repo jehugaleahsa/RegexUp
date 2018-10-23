@@ -319,7 +319,7 @@ namespace RegexUp
                     case 's':
                     case 'x':
                     case '-':
-                        return ParseOptionsGroup();
+                        return ParseOptions();
                     default: throw new InvalidOperationException();
                 }
             }
@@ -416,10 +416,10 @@ namespace RegexUp
                 return group;
             }
 
-            private IOptionsGroup ParseOptionsGroup()
+            private IExpression ParseOptions()
             {
                 var enabled = GroupRegexOptions.None;
-                while (regex[index] != '-' && regex[index] != ':')
+                while (regex[index] != '-' && regex[index] != ':' && regex[index] != ')')
                 {
                     enabled |= GetOption();
                     ++index;
@@ -429,17 +429,24 @@ namespace RegexUp
                     ++index;
                 }
                 var disabled = GroupRegexOptions.None;
-                while (regex[index] != ':')
+                while (regex[index] != ':' && regex[index] != ')')
                 {
                     disabled |= GetOption();
                     ++index;
                 }
-                ++index; // swallow ':'
-                IContainer container = new Expression();
-                container = Parse(container);
-                var group = new OptionsGroup() { EnabledOptions = enabled, DisabledOptions = disabled };
-                InheritMembers(group, container);
-                return group;
+                if (regex[index] == ':')
+                {
+                    ++index; // swallow ':'
+                    IContainer container = new Expression();
+                    container = Parse(container);
+                    var group = new OptionsGroup() { EnabledOptions = enabled, DisabledOptions = disabled };
+                    InheritMembers(group, container);
+                    return group;
+                }
+                else
+                {
+                    return InlineOptions.For(enabled, disabled);
+                }
             }
 
             private GroupRegexOptions GetOption()

@@ -42,20 +42,6 @@ namespace RegexUp
             return group;
         }
 
-        private static void ValidateRegexOptions(string parameterName, GroupRegexOptions options)
-        {
-            if ((options & GroupRegexOptions.Multiline) == GroupRegexOptions.Multiline && (options & GroupRegexOptions.Singleline) == GroupRegexOptions.Singleline)
-            {
-                throw new ArgumentException(Resources.SingleAndMultilineMode, parameterName);
-            }
-            var allOptions = GroupRegexOptions.IgnoreCase | GroupRegexOptions.Multiline | GroupRegexOptions.ExplicitCapture | GroupRegexOptions.Singleline | GroupRegexOptions.IgnorePatternWhitespace;
-            options &= ~allOptions;
-            if (options != 0)
-            {
-                throw new ArgumentException(Resources.InvalidGroupOptions, parameterName);
-            }
-        }
-
         internal OptionsGroup()
         {
         }
@@ -79,7 +65,7 @@ namespace RegexUp
             return encoded;
         }
 
-        private string EncodeOptions(GroupRegexOptions options)
+        internal static string EncodeOptions(GroupRegexOptions options)
         {
             var parts = new List<string>();
             if ((options & GroupRegexOptions.IgnoreCase) == GroupRegexOptions.IgnoreCase)

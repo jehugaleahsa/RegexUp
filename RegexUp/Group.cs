@@ -18,6 +18,20 @@ namespace RegexUp
             }
         }
 
+        internal static void ValidateRegexOptions(string parameterName, GroupRegexOptions options)
+        {
+            if ((options & GroupRegexOptions.Multiline) == GroupRegexOptions.Multiline && (options & GroupRegexOptions.Singleline) == GroupRegexOptions.Singleline)
+            {
+                throw new ArgumentException(Resources.SingleAndMultilineMode, parameterName);
+            }
+            var allOptions = GroupRegexOptions.IgnoreCase | GroupRegexOptions.Multiline | GroupRegexOptions.ExplicitCapture | GroupRegexOptions.Singleline | GroupRegexOptions.IgnorePatternWhitespace;
+            options &= ~allOptions;
+            if (options != 0)
+            {
+                throw new ArgumentException(Resources.InvalidGroupOptions, parameterName);
+            }
+        }
+
         private readonly List<IExpression> members = new List<IExpression>();
 
         protected Group()

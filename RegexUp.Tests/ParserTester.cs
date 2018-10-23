@@ -597,5 +597,27 @@ namespace RegexUp.Tests
         }
 
         #endregion
+
+        #region InlineOptions
+
+        [TestMethod]
+        public void Parse_InlineOptions_EnableOnly()
+        {
+            RoundTripHelper.AssertRoundTrips(@"a(?i)A");
+        }
+
+        [TestMethod]
+        public void Parse_InlineOptions_DisableOnly()
+        {
+            RoundTripHelper.AssertRoundTrips(@"A(?-i)a");
+        }
+
+        [TestMethod]
+        public void Parse_InlineOptions_EnableAndDisable()
+        {
+            RoundTripHelper.AssertRoundTrips(@"A(?imnx-imnx)a");
+        }
+
+        #endregion
     }
 }
