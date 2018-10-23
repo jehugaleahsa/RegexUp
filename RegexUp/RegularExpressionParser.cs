@@ -580,25 +580,24 @@ namespace RegexUp
 
             private ValueTuple<int, int?> GetQuantifierRange()
             {
-                int minEndIndex = GetNumberEndIndexWithWhitespace();
-                string minString = regex.Substring(index, minEndIndex - index).Trim();
-                int min = Int32.Parse(minString);
-                index = minEndIndex;
+                int min = GetQuantifierNumber();
                 if (regex[index] == '}')
                 {
-                    ++index; // swallow the }
+                    ++index; // swallow the '}'
                     return ValueTuple.Create(min, min);
                 }
-                ++index; // swallow the ,
+                ++index; // swallow the ','
+                while (Char.IsWhiteSpace(regex[index]))
+                {
+                    ++index; // swallow whitespace
+                }
                 if (regex[index] == '}')
                 {
-                    ++index; // swallow the }
+                    ++index; // swallow the '}'
                     return ValueTuple.Create(min, (int?)null);
                 }
-                int maxEndIndex = GetNumberEndIndexWithWhitespace();
-                string maxString = regex.Substring(index, maxEndIndex - index).Trim();
-                int max = Int32.Parse(maxString);
-                index = maxEndIndex + 1; // swallow the }
+                int max = GetQuantifierNumber();
+                ++index; // swallow the '}'
                 return ValueTuple.Create(min, max);
             }
 
@@ -626,6 +625,15 @@ namespace RegexUp
                 }
 
                 return alternation;
+            }
+
+            private int GetQuantifierNumber()
+            {
+                int endIndex = GetNumberEndIndexWithWhitespace();
+                string numberString = regex.Substring(index, endIndex - index).Trim();
+                int number = Int32.Parse(numberString);
+                index = endIndex;
+                return number;
             }
 
             private int GetNumberEndIndexWithWhitespace()

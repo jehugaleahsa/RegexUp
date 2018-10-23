@@ -533,9 +533,21 @@ namespace RegexUp.Tests
         }
 
         [TestMethod]
+        public void Parse_Literal_Exactly_WithWhitespace()
+        {
+            RoundTripHelper.AssertRoundTrips("a{ 5 }", "a{5}");
+        }
+
+        [TestMethod]
         public void Parse_Literal_AtLeast()
         {
             RoundTripHelper.AssertRoundTrips("a{5,}");
+        }
+
+        [TestMethod]
+        public void Parse_Literal_AtLeast_WithWhitespace()
+        {
+            RoundTripHelper.AssertRoundTrips("a{ 5 , }", "a{5,}");
         }
 
         [TestMethod]
@@ -545,7 +557,7 @@ namespace RegexUp.Tests
         }
 
         [TestMethod]
-        public void Parse_Literal_Between_WithSpaces()
+        public void Parse_Literal_Between_WithWhitespace()
         {
             RoundTripHelper.AssertRoundTrips("a{   5   ,   10  }", "a{5,10}");
         }
