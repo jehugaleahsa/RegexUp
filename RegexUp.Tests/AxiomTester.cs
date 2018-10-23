@@ -92,5 +92,12 @@ namespace RegexUp.Tests
         {
             new Regex(@"((?'Open'\()[^)]*)+((?'Current-')[^()]*)+");
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void SolitaryRightParanthesis_Illegal()
+        {
+            new Regex(@")");
+        }
     }
 }

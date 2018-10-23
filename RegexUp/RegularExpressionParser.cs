@@ -81,7 +81,7 @@ namespace RegexUp
 
             private IExpression ParseEscapeSequence()
             {
-                var current = ParseEscapeSequenceInternal();
+                var current = ParseEscapeSequenceInternal(ExpressionContext.Group);
                 ++index;
                 current = Quantify(current);
                 var next = Parse();
@@ -92,7 +92,7 @@ namespace RegexUp
                 return Expression.Of(current, next);
             }
 
-            private IExpression ParseEscapeSequenceInternal()
+            private IExpression ParseEscapeSequenceInternal(ExpressionContext context)
             {
                 ++index;
                 char nextChar = regex[index];
@@ -102,7 +102,7 @@ namespace RegexUp
                     case 'Z': return Anchors.Z;
                     case 'z': return Anchors.z;
                     case 'G': return Anchors.G;
-                    case 'b': return Anchors.b;
+                    case 'b': return (context == ExpressionContext.CharacterGroup) ? (IExpression)CharacterEscapes.Backspace : Anchors.b;
                     case 'B': return Anchors.B;
                     case 'k': return ParseNamedBackreference();
                     case 'w': return CharacterClasses.Word;
@@ -143,7 +143,7 @@ namespace RegexUp
                     case '8':
                     case '9':
                         return ParseNumberedBackreference();
-                    default: return new CharacterEscape($@"\{nextChar}");
+                    default: return CharacterEscapes.For(nextChar);
                 }
             }
 
@@ -239,7 +239,7 @@ namespace RegexUp
                             ++index;
                             break;
                         case '\\':
-                            members.Add((ICharacterGroupMember)ParseEscapeSequenceInternal());
+                            members.Add((ICharacterGroupMember)ParseEscapeSequenceInternal(ExpressionContext.CharacterGroup));
                             ++index;
                             break;
                         default:
@@ -254,7 +254,7 @@ namespace RegexUp
 
             private ICharacterGroupMember ParseRange(Literal startLiteral)
             {
-                char firstChar = startLiteral.Value[0];
+                char firstChar = startLiteral.Value;
                 ++index; // swallow '-'
                 char lastChar = regex[index];
                 return Range.For(firstChar, lastChar);
