@@ -9,7 +9,7 @@ namespace RegexUp.Tests
         public void CaptureGroup_NoName()
         {
             var regex = RegularExpression.Of(
-                Group.Capture.Of(
+                CaptureGroup.Of(
                     Literal.For("A")
                 )
             ).ToRegex();
@@ -20,7 +20,7 @@ namespace RegexUp.Tests
         public void CaptureGroup_Name()
         {
             var regex = RegularExpression.Of(
-                Group.Capture.Of(
+                CaptureGroup.Of(
                     new CaptureGroupOptions() { Name = "A" },
                     Literal.For("A")
                 )
@@ -32,7 +32,7 @@ namespace RegexUp.Tests
         public void CaptureGroup_Name_WithQuotes()
         {
             var regex = RegularExpression.Of(
-                Group.Capture.Of(
+                CaptureGroup.Of(
                     new CaptureGroupOptions() { Name = "A", UseQuotes = true },
                     Literal.For("A")
                 )
@@ -41,11 +41,11 @@ namespace RegexUp.Tests
         }
 
         [TestMethod]
-        public void BalancedGroup()
+        public void BalancedGroup_AngleBrackets()
         {
             var regex = RegularExpression.Of(
-                Group.Capture.Of(new CaptureGroupOptions() { Name = "Open" }, Literal.For("<")),
-                Group.Balanced.Of("Close", "Open", Literal.For(">"))
+                CaptureGroup.Of(new CaptureGroupOptions() { Name = "Open" }, Literal.For("<")),
+                BalancedGroup.Of("Close", "Open", Literal.For(">"))
             ).ToRegex();
             Assert.AreEqual("(?<Open><)(?<Close-Open>>)", regex.ToString());
         }
@@ -54,17 +54,17 @@ namespace RegexUp.Tests
         public void BalancedGroup_WithQuotes()
         {
             var regex = RegularExpression.Of(
-                Group.Capture.Of(new CaptureGroupOptions() { Name = "Open", UseQuotes = true }, Literal.For("<")),
-                Group.Balanced.Of("Close", "Open", new BalanceGroupOptions() { UseQuotes = true }, Literal.For(">"))
+                CaptureGroup.Of(new CaptureGroupOptions() { Name = "Open", UseQuotes = true }, Literal.For("<")),
+                BalancedGroup.Of("Close", "Open", new BalanceGroupOptions() { UseQuotes = true }, Literal.For(">"))
             ).ToRegex();
             Assert.AreEqual("(?'Open'<)(?'Close-Open'>)", regex.ToString());
         }
 
         [TestMethod]
-        public void NonCaptureGroup()
+        public void NonCaptureGroup_Literal()
         {
             var regex = RegularExpression.Of(
-                Group.NonCapture.Of(Literal.For("A"))
+                NonCaptureGroup.Of(Literal.For("A"))
             ).ToRegex();
             Assert.AreEqual("(?:A)", regex.ToString());
         }
@@ -74,7 +74,7 @@ namespace RegexUp.Tests
         {
             var enabled = GroupRegexOptions.IgnoreCase | GroupRegexOptions.Multiline | GroupRegexOptions.ExplicitCapture | GroupRegexOptions.IgnorePatternWhitespace;
             var regex = RegularExpression.Of(
-                Group.Options.Of(enabled, GroupRegexOptions.None, Literal.For("A"))
+                OptionsGroup.Of(enabled, GroupRegexOptions.None, Literal.For("A"))
             ).ToRegex();
             Assert.AreEqual("(?imnx:A)", regex.ToString());
         }
@@ -84,7 +84,7 @@ namespace RegexUp.Tests
         {
             var disabled = GroupRegexOptions.IgnoreCase | GroupRegexOptions.Multiline | GroupRegexOptions.ExplicitCapture | GroupRegexOptions.IgnorePatternWhitespace;
             var regex = RegularExpression.Of(
-                Group.Options.Of(GroupRegexOptions.None, disabled, Literal.For("A"))
+                OptionsGroup.Of(GroupRegexOptions.None, disabled, Literal.For("A"))
             ).ToRegex();
             Assert.AreEqual("(?-imnx:A)", regex.ToString());
         }
@@ -94,7 +94,7 @@ namespace RegexUp.Tests
         {
             var options = GroupRegexOptions.IgnoreCase | GroupRegexOptions.Multiline | GroupRegexOptions.ExplicitCapture | GroupRegexOptions.IgnorePatternWhitespace;
             var regex = RegularExpression.Of(
-                Group.Options.Of(options, options, Literal.For("A"))
+                OptionsGroup.Of(options, options, Literal.For("A"))
             ).ToRegex();
             Assert.AreEqual("(?imnx-imnx:A)", regex.ToString());
         }
@@ -103,7 +103,7 @@ namespace RegexUp.Tests
         public void OptionsGroup_NoOptions()
         {
             var regex = RegularExpression.Of(
-                Group.Options.Of(GroupRegexOptions.None, GroupRegexOptions.None, Literal.For("A"))
+                OptionsGroup.Of(GroupRegexOptions.None, GroupRegexOptions.None, Literal.For("A"))
             ).ToRegex();
             Assert.AreEqual("(?:A)", regex.ToString());
         }
@@ -112,7 +112,7 @@ namespace RegexUp.Tests
         public void ZeroWidthPositiveLookaheadAssertion()
         {
             var regex = RegularExpression.Of(
-                Group.LookaheadAssertions.Positive.Of(Literal.For("A"))
+                PositiveLookaheadAssertion.Of(Literal.For("A"))
             ).ToRegex();
             Assert.AreEqual("(?=A)", regex.ToString());
         }
@@ -121,7 +121,7 @@ namespace RegexUp.Tests
         public void ZeroWidthNegativeLookaheadAssertion()
         {
             var regex = RegularExpression.Of(
-                Group.LookaheadAssertions.Negative.Of(Literal.For("A"))
+                NegativeLookaheadAssertion.Of(Literal.For("A"))
             ).ToRegex();
             Assert.AreEqual("(?!A)", regex.ToString());
         }
@@ -130,7 +130,7 @@ namespace RegexUp.Tests
         public void ZeroWidthPositiveLookbehindAssertion()
         {
             var regex = RegularExpression.Of(
-                Group.LookbehindAssertions.Positive.Of(Literal.For("A"))
+                PositiveLookbehindAssertion.Of(Literal.For("A"))
             ).ToRegex();
             Assert.AreEqual("(?<=A)", regex.ToString());
         }
@@ -139,7 +139,7 @@ namespace RegexUp.Tests
         public void ZeroWidthNegativeLookbehindAssertion()
         {
             var regex = RegularExpression.Of(
-                Group.LookbehindAssertions.Negative.Of(Literal.For("A"))
+                NegativeLookbehindAssertion.Of(Literal.For("A"))
             ).ToRegex();
             Assert.AreEqual("(?<!A)", regex.ToString());
         }
@@ -148,7 +148,7 @@ namespace RegexUp.Tests
         public void NonbacktrackingExpression()
         {
             var regex = RegularExpression.Of(
-                Group.Nonbacktracking.Of(Literal.For("A"))
+                NonbacktrackingAssertion.Of(Literal.For("A"))
             ).ToRegex();
             Assert.AreEqual("(?>A)", regex.ToString());
         }

@@ -1,10 +1,65 @@
 ﻿using System;
 using System.Collections.Generic;
+using RegexUp.Properties;
 
 namespace RegexUp
 {
-    internal sealed class OptionsGroup : Group, IOptionsGroup
+    /// <summary>
+    /// Provides factory methods for creating groups with different regex options.
+    /// </summary>
+    public sealed class OptionsGroup : Group, IOptionsGroup
     {
+        /// <summary>
+        /// Creates a group that can enable or disable options for its subexpressions.
+        /// </summary>
+        /// <param name="enabled">The options to enable.</param>
+        /// <param name="disabled">The options to disable.</param>
+        /// <returns>The options group.</returns>
+        public static IOptionsGroup Of(GroupRegexOptions enabled, GroupRegexOptions disabled, params IExpression[] members)
+        {
+            return From(enabled, disabled, members);
+        }
+
+        /// <summary>
+        /// Creates a group that can enable or disable options for its subexpressions.
+        /// </summary>
+        /// <param name="enabled">The options to enable.</param>
+        /// <param name="disabled">The options to disable.</param>
+        /// <returns>The options group.</returns>
+        public static IOptionsGroup From(GroupRegexOptions enabled, GroupRegexOptions disabled, IEnumerable<IExpression> members)
+        {
+            if (members == null)
+            {
+                throw new ArgumentNullException(nameof(members));
+            }
+            ValidateRegexOptions(nameof(enabled), enabled);
+            ValidateRegexOptions(nameof(disabled), disabled);
+            var group = new OptionsGroup() { EnabledOptions = enabled, DisabledOptions = disabled };
+            foreach (var member in members)
+            {
+                group.Add(member);
+            }
+            return group;
+        }
+
+        private static void ValidateRegexOptions(string parameterName, GroupRegexOptions options)
+        {
+            if ((options & GroupRegexOptions.Multiline) == GroupRegexOptions.Multiline && (options & GroupRegexOptions.Singleline) == GroupRegexOptions.Singleline)
+            {
+                throw new ArgumentException(Resources.SingleAndMultilineMode, parameterName);
+            }
+            var allOptions = GroupRegexOptions.IgnoreCase | GroupRegexOptions.Multiline | GroupRegexOptions.ExplicitCapture | GroupRegexOptions.Singleline | GroupRegexOptions.IgnorePatternWhitespace;
+            options &= ~allOptions;
+            if (options != 0)
+            {
+                throw new ArgumentException(Resources.InvalidGroupOptions, parameterName);
+            }
+        }
+
+        internal OptionsGroup()
+        {
+        }
+
         public GroupRegexOptions EnabledOptions { get; set; }
 
         public GroupRegexOptions DisabledOptions { get; set; }

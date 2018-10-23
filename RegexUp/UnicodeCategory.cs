@@ -1,6 +1,6 @@
 ﻿namespace RegexUp
 {
-    internal class UnicodeCategory : ICharacterClass, IExpressionEncoder
+    internal sealed class UnicodeCategory : ICharacterClass, IExpressionEncoder
     {
         public UnicodeCategory(string value)
         {

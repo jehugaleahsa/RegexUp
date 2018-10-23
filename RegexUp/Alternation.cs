@@ -39,38 +39,6 @@ namespace RegexUp
             return alternation;
         }
 
-        /// <summary>
-        /// Provides factory methods for creating conditional alternations.
-        /// </summary>
-        public static class Conditional
-        {
-            /// <summary>
-            /// Creates an alternation that tries to match the 'yes' option if the expression is matched.
-            /// </summary>
-            /// <param name="expression">The expression that must be matched for the 'yes' option to be matched.</param>
-            /// <param name="yes">The alternative to match if the capture group is matched.</param>
-            /// <param name="no">The alternative to match if the capture group is not matched.</param>
-            /// <returns>The alternation.</returns>
-            public static IExpressionBasedConditionalAlternation ByExpression(IExpression expression, IExpression yes, IExpression no)
-            {
-                if (expression == null)
-                {
-                    throw new ArgumentNullException(nameof(expression));
-                }
-                if (yes == null)
-                {
-                    throw new ArgumentNullException(nameof(yes));
-                }
-                var alternation = new ConditionalAlternation()
-                {
-                    Expression = expression,
-                    YesOption = yes,
-                    NoOption = no
-                };
-                return alternation;
-            }
-        }
-
         private readonly List<IExpression> alternatives = new List<IExpression>();
 
         internal Alternation()

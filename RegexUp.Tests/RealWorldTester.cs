@@ -13,8 +13,8 @@ namespace RegexUp.Tests
 
                 // scheme - (?:([A-Za-z]+):)?
                 Quantifiers.ZeroOrOne(
-                    Group.NonCapture.Of(
-                        Group.Capture.Of(
+                    NonCaptureGroup.Of(
+                        CaptureGroup.Of(
                             Quantifiers.OneOrMore(
                                 CharacterGroup.Of(
                                     Range.For('A', 'Z'),
@@ -27,12 +27,12 @@ namespace RegexUp.Tests
                 ),
 
                 // slash - (/{0,3})
-                Group.Capture.Of(
+                CaptureGroup.Of(
                     Quantifiers.Between(Literal.For("/"), 0, 3)
                 ),
 
                 // host - ([0-9.\-A-Za-z]+)
-                Group.Capture.Of(
+                CaptureGroup.Of(
                     Quantifiers.OneOrMore(
                         CharacterGroup.Of(
                             Range.For('0', '9'),
@@ -46,9 +46,9 @@ namespace RegexUp.Tests
 
                 // port - (?::(\d+))?
                 Quantifiers.ZeroOrOne(
-                    Group.NonCapture.Of(
+                    NonCaptureGroup.Of(
                         Literal.For(":"),
-                        Group.Capture.Of(
+                        CaptureGroup.Of(
                             Quantifiers.OneOrMore(CharacterClasses.Digit)
                         )
                     )
@@ -56,7 +56,7 @@ namespace RegexUp.Tests
 
                 // path - (/[^?#]*)?
                 Quantifiers.ZeroOrOne(
-                    Group.Capture.Of(
+                    CaptureGroup.Of(
                         Literal.For("/"),
                         Quantifiers.ZeroOrMore(
                             CharacterGroup.Of(
@@ -70,9 +70,9 @@ namespace RegexUp.Tests
 
                 // query - (?:\?([^#]*))?
                 Quantifiers.ZeroOrOne(
-                    Group.NonCapture.Of(
+                    NonCaptureGroup.Of(
                         Literal.For("?"),
-                        Group.Capture.Of(
+                        CaptureGroup.Of(
                             Quantifiers.ZeroOrMore(
                                 CharacterGroup.Of(new CharacterGroupOptions() { IsNegated = true }, Literal.For("#"))
                             )
@@ -82,9 +82,9 @@ namespace RegexUp.Tests
 
                 // hash - (?:#(.*))?
                 Quantifiers.ZeroOrOne(
-                    Group.NonCapture.Of(
+                    NonCaptureGroup.Of(
                         Literal.For("#"),
-                        Group.Capture.Of(
+                        CaptureGroup.Of(
                             Quantifiers.ZeroOrMore(CharacterClasses.Wildcard)
                         )
                     )

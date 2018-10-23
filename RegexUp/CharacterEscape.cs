@@ -1,6 +1,6 @@
 ﻿namespace RegexUp
 {
-    internal class CharacterEscape : ICharacterEscape, IExpressionEncoder
+    internal sealed class CharacterEscape : ICharacterEscape, IExpressionEncoder
     {
         public CharacterEscape(string value)
         {

@@ -20,7 +20,7 @@ namespace RegexUp.Tests
         public void Alternation_ByExpression()
         {
             var regex = RegularExpression.Of(
-                Alternation.Conditional.ByExpression(Literal.For("A"), Literal.For("Abc"), Literal.For("Xyz"))
+                ConditionalAlternation.For(Literal.For("A"), Literal.For("Abc"), Literal.For("Xyz"))
             ).ToRegex();
             Assert.AreEqual("(?(A)Abc|Xyz)", regex.ToString());
         }
@@ -29,8 +29,8 @@ namespace RegexUp.Tests
         public void Alternation_ByCapture()
         {
             var regex = RegularExpression.Of(
-                Group.Capture.Of(new CaptureGroupOptions() { Name = "A" }, Quantifiers.OneOrMore(Literal.For("A"))), 
-                Alternation.Conditional.ByExpression(Literal.For("A"), Literal.For("Abc"), Literal.For("Xyz"))
+                CaptureGroup.Of(new CaptureGroupOptions() { Name = "A" }, Quantifiers.OneOrMore(Literal.For("A"))),
+                ConditionalAlternation.For(Literal.For("A"), Literal.For("Abc"), Literal.For("Xyz"))
             ).ToRegex();
             Assert.AreEqual("(?<A>A+)(?(A)Abc|Xyz)", regex.ToString());
         }

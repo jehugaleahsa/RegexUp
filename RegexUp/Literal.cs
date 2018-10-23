@@ -45,7 +45,7 @@ namespace RegexUp
             return compound;
         }
 
-        internal Literal(char value)
+        private Literal(char value)
         {
             this.Value = value;
         }

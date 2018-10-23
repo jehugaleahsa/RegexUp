@@ -1,6 +1,6 @@
 ﻿namespace RegexUp
 {
-    internal class Anchor : IAnchor, IExpressionEncoder
+    internal sealed class Anchor : IAnchor, IExpressionEncoder
     {
         public Anchor(string value)
         {

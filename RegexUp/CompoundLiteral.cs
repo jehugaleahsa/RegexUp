@@ -26,5 +26,7 @@ namespace RegexUp
         }
 
         public bool NeedsGroupedToQuantify() => true;
+
+        public override string ToString() => Value;
     }
 }

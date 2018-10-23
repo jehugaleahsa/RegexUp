@@ -333,42 +333,42 @@ namespace RegexUp
                 }
             }
 
-            private INegativeLookbehindAssertionGroup ParseNegativeLookbehindGroup()
+            private INegativeLookbehindAssertion ParseNegativeLookbehindGroup()
             {
                 ++index; // swallow the '!'
                 IContainer container = new Expression();
                 container = Parse(container);
-                var group = new NegativeLookbehindAssertionGroup();
+                var group = new NegativeLookbehindAssertion();
                 InheritMembers(group, container);
                 return group;
             }
 
-            private IPositiveLookbehindAssertionGroup ParsePositiveLookbehindGroup()
+            private IPositiveLookbehindAssertion ParsePositiveLookbehindGroup()
             {
                 ++index; // swallow the '='
                 IContainer container = new Expression();
                 container = Parse(container);
-                var group = new PositiveLookbehindAssertionGroup();
+                var group = new PositiveLookbehindAssertion();
                 InheritMembers(group, container);
                 return group;
             }
 
-            private INegativeLookaheadAssertionGroup ParseNegativeLookaheadGroup()
+            private INegativeLookaheadAssertion ParseNegativeLookaheadGroup()
             {
                 ++index; // swallow the '!'
                 IContainer container = new Expression();
                 container = Parse(container);
-                var group = new NegativeLookaheadAssertionGroup();
+                var group = new NegativeLookaheadAssertion();
                 InheritMembers(group, container);
                 return group;
             }
 
-            private IPositiveLookaheadAssertionGroup ParsePositiveLookaheadGroup()
+            private IPositiveLookaheadAssertion ParsePositiveLookaheadGroup()
             {
                 ++index; // swallow the '='
                 IContainer container = new Expression();
                 container = Parse(container);
-                var group = new PositiveLookaheadAssertionGroup();
+                var group = new PositiveLookaheadAssertion();
                 InheritMembers(group, container);
                 return group;
             }
@@ -413,12 +413,12 @@ namespace RegexUp
                 }
             }
 
-            private INonbacktrackingGroup ParseNonbacktrackingAssertion()
+            private INonbacktrackingAssertion ParseNonbacktrackingAssertion()
             {
                 ++index; // swallow the '>'
                 IContainer container = new Expression();
                 container = Parse(container);
-                var group = new NonbacktrackingGroup();
+                var group = new NonbacktrackingAssertion();
                 InheritMembers(group, container);
                 return group;
             }

@@ -56,19 +56,21 @@ namespace RegexUp
             return regularExpression;
         }
 
-        private readonly List<IExpression> expressions = new List<IExpression>();
+        private readonly List<IExpression> members = new List<IExpression>();
 
         private RegularExpression()
         {
         }
+
+        public IEnumerable<IExpression> Members => members;
         
-        public void Add(IExpression expression)
+        public void Add(IExpression members)
         {
-            if (expression == null)
+            if (members == null)
             {
-                throw new ArgumentNullException(nameof(expression));
+                throw new ArgumentNullException(nameof(members));
             }
-            expressions.Add(expression);
+            this.members.Add(members);
         }
         
         public Regex ToRegex(RegexOptions options = RegexOptions.None)
@@ -85,7 +87,7 @@ namespace RegexUp
 
         private string EncodeMembers()
         {
-            var encoded = String.Join(String.Empty, expressions.Cast<IExpressionEncoder>().Select(e => e.Encode(ExpressionContext.Group)));
+            var encoded = String.Join(String.Empty, members.Cast<IExpressionEncoder>().Select(e => e.Encode(ExpressionContext.Group)));
             return encoded;
         }
 

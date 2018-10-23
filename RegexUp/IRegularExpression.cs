@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace RegexUp
@@ -8,6 +9,8 @@ namespace RegexUp
     /// </summary>
     public interface IRegularExpression
     {
+        IEnumerable<IExpression> Members { get; }
+
         /// <summary>
         /// Adds the given expression to the regular expression.
         /// </summary>

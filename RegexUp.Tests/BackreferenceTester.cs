@@ -9,7 +9,7 @@ namespace RegexUp.Tests
         public void Backreference_Number()
         {
             var regex = RegularExpression.Of(
-                Group.Capture.Of(Quantifiers.OneOrMore(Literal.For("a"))),
+                CaptureGroup.Of(Quantifiers.OneOrMore(Literal.For("a"))),
                 Quantifiers.ZeroOrMore(Literal.For("b")),
                 Backreference.For(1)
             ).ToRegex();
@@ -20,7 +20,7 @@ namespace RegexUp.Tests
         public void Backreference_Name()
         {
             var regex = RegularExpression.Of(
-                Group.Capture.Of(new CaptureGroupOptions() { Name = "a" }, Quantifiers.OneOrMore(Literal.For("a"))),
+                CaptureGroup.Of(new CaptureGroupOptions() { Name = "a" }, Quantifiers.OneOrMore(Literal.For("a"))),
                 Quantifiers.ZeroOrMore(Literal.For("b")),
                 Backreference.For("a")
             ).ToRegex();
@@ -31,7 +31,7 @@ namespace RegexUp.Tests
         public void Backreference_Name_WithQuotes()
         {
             var regex = RegularExpression.Of(
-                Group.Capture.Of(new CaptureGroupOptions() { Name = "a", UseQuotes = true }, Quantifiers.OneOrMore(Literal.For("a"))),
+                CaptureGroup.Of(new CaptureGroupOptions() { Name = "a", UseQuotes = true }, Quantifiers.OneOrMore(Literal.For("a"))),
                 Quantifiers.ZeroOrMore(Literal.For("b")),
                 Backreference.For("a", true)
             ).ToRegex();
