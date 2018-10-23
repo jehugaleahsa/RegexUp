@@ -2,6 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.0.1</Version>
+    <Description>Compose, decompose and analyze regular expressions.</Description>
+    <Copyright>Truncon © 2018</Copyright>
+    <PackageLicenseUrl>https://github.com/jehugaleahsa/RegexUp/blob/master/UNLICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/jehugaleahsa/RegexUp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jehugaleahsa/RegexUp.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>regex parse build compose analyze</PackageTags>
+    <PackageReleaseNotes>Experimental release</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
