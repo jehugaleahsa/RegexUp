@@ -3,7 +3,7 @@ using RegexUp.Properties;
 
 namespace RegexUp
 {
-    public sealed class InlineComment : IInlineComment, IExpressionEncoder
+    public sealed class InlineComment : IInlineComment
     {
         public static IInlineComment For(string comment)
         {
@@ -25,13 +25,10 @@ namespace RegexUp
 
         public string Comment { get; }
 
-        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
-        {
-            return $"(?#{Comment})";
-        }
-
         bool IExpression.NeedsGroupedToQuantify() => false;
 
-        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group, 0, 1);
+        void IVisitableExpression.Accept(ExpressionVisitor visitor) => visitor.Visit(this);
+
+        public override string ToString() => EncodingExpressionVisitor.ToString(this);
     }
 }

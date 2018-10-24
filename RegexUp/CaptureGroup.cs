@@ -75,20 +75,8 @@ namespace RegexUp
 
         public bool UseQuotes { get; set; }
 
-        protected override string OnEncode()
-        {
-            var parts = new List<string>() { "(" };
-            if (Name != null)
-            {
-                parts.Add("?");
-                parts.Add(UseQuotes ? "'" : "<");
-                parts.Add(Name);
-                parts.Add(UseQuotes ? "'" : ">");
-            }
-            parts.Add(EncodeMembers());
-            parts.Add(")");
-            var encoded = String.Join(String.Empty, parts);
-            return encoded;
-        }
+        protected override void OnAccept(ExpressionVisitor visitor) => visitor.Visit(this);
+
+        public override string ToString() => EncodingExpressionVisitor.ToString(this);
     }
 }

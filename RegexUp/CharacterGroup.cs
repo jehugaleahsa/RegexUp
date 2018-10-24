@@ -7,7 +7,7 @@ namespace RegexUp
     /// <summary>
     /// Provides factory methods from creating a character group.
     /// </summary>
-    public sealed class CharacterGroup : ICharacterGroup, IExpressionEncoder
+    public sealed class CharacterGroup : ICharacterGroup
     {
         /// <summary>
         /// Creates a new character group with the given sub-expressions.
@@ -87,27 +87,8 @@ namespace RegexUp
 
         bool IExpression.NeedsGroupedToQuantify() => false;
 
-        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
-        {
-            var parts = new List<string>() { "[" };
-            if (IsNegated)
-            {
-                parts.Add("^");
-            }
-            parts.AddRange(members
-                .Cast<IExpressionEncoder>()
-                .Select((m, i) => m.Encode(ExpressionContext.CharacterGroup, i, members.Count))
-            );
-            if (Exclusions != null && Exclusions.Members.Any())
-            {
-                parts.Add("-");
-                parts.Add(((IExpressionEncoder)Exclusions).Encode(ExpressionContext.CharacterGroup, 0, 1));
-            }
-            parts.Add("]");
-            var encoded = String.Join(String.Empty, parts);
-            return encoded;
-        }
+        void IVisitableExpression.Accept(ExpressionVisitor visitor) => visitor.Visit(this);
 
-        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group, 0, 1);
+        public override string ToString() => EncodingExpressionVisitor.ToString(this);
     }
 }

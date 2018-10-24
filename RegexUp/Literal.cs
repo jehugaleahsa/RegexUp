@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RegexUp
@@ -7,7 +8,7 @@ namespace RegexUp
     /// <summary>
     /// Provides factory methods for creating literals.
     /// </summary>
-    public sealed class Literal : ILiteral, IExpressionEncoder
+    public sealed class Literal : ILiteral
     {
         private static readonly ConcurrentDictionary<char, ILiteral> literals = new ConcurrentDictionary<char, ILiteral>();
 
@@ -47,57 +48,19 @@ namespace RegexUp
 
         private Literal(char value)
         {
-            this.Value = value;
+            Value = value;
         }
         
         public char Value { get; }
+
+        IEnumerable<ILiteral> ICompoundLiteral.Literals => new[] { this };
 
         string ICompoundLiteral.Value => Value.ToString();
 
         bool IExpression.NeedsGroupedToQuantify() => false;
 
-        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
-        {
-            if (Char.IsWhiteSpace(Value))
-            {
-                return $@"\{Value}";
-            }
-            if (context == ExpressionContext.CharacterGroup)
-            {
-                switch (Value)
-                {
-                    case '\\': return @"\\";
-                    case '-': return (position == length - 1) ? Value.ToString() : @"\-";
-                    case '^': return (position == 0) ? @"\^" : Value.ToString();
-                    default: return Value.ToString();
-                }
-            }
-            else
-            {
-                switch (Value)
-                {
-                    case '\\': return @"\\";
-                    case '*': return @"\*";
-                    case '+': return @"\+";
-                    case '?': return @"\?";
-                    case '|': return @"\|";
-                    case '{': return @"\{";
-                    case '[': return @"\[";
-                    case '(': return @"\(";
-                    case ')': return @"\)";
-                    case '^': return @"\^";
-                    case '$': return @"\$";
-                    case '.': return @"\";
-                    case '#': return @"\#";
-                    default: return Value.ToString();
-                }
-            }
-        }
+        void IVisitableExpression.Accept(ExpressionVisitor visitor) => visitor.Visit(this);
 
-        /// <summary>
-        /// Gets the literal value.
-        /// </summary>
-        /// <returns>The literal value.</returns>
-        public override string ToString() => Value.ToString();
+        public override string ToString() => EncodingExpressionVisitor.ToString(this);
     }
 }

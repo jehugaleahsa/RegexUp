@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace RegexUp
 {
     /// <summary>
-    /// Defines an expression composed one or more expressions.
+    /// Provides factory methods for creating a series of expressions.
     /// </summary>
-    public sealed class Expression : IExpression, IContainer, IExpressionEncoder
+    public sealed class CompoundExpression : ICompoundExpression, IContainer
     {
         /// <summary>
         /// Creates an expression consisting of multiple sub-expressions.
         /// </summary>
         /// <param name="members">The expressions comprising the expression.</param>
         /// <returns>The expression.</returns>
-        public static IExpression Of(params IExpression[] members)
+        public static ICompoundExpression Of(params IExpression[] members)
         {
             return From(members);
         }
@@ -24,13 +23,13 @@ namespace RegexUp
         /// </summary>
         /// <param name="members">The expressions comprising the expression.</param>
         /// <returns>The expression.</returns>
-        public static IExpression From(IEnumerable<IExpression> members)
+        public static ICompoundExpression From(IEnumerable<IExpression> members)
         {
             if (members == null)
             {
                 throw new ArgumentNullException(nameof(members));
             }
-            var expression = new Expression();
+            var expression = new CompoundExpression();
             foreach (var member in members)
             {
                 expression.Add(member);
@@ -40,28 +39,25 @@ namespace RegexUp
 
         private readonly List<IExpression> members = new List<IExpression>();
 
-        internal Expression()
+        internal CompoundExpression()
         {
         }
 
-        internal IEnumerable<IExpression> Members => members;
+        public IEnumerable<IExpression> Members => members;
 
         public void Add(IExpression member)
         {
+            if (member == null)
+            {
+                throw new ArgumentNullException(nameof(member));
+            }
             members.Add(member);
         }
 
         bool IExpression.NeedsGroupedToQuantify() => members.Count > 1 || members[0].NeedsGroupedToQuantify();
 
-        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
-        {
-            string encoded = String.Join(String.Empty, members
-                .Cast<IExpressionEncoder>()
-                .Select((e, i) => e.Encode(context, i, members.Count))
-            );
-            return encoded;
-        }
+        void IVisitableExpression.Accept(ExpressionVisitor visitor) => visitor.Visit(this);
 
-        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group, 0, 1);
+        public override string ToString() => EncodingExpressionVisitor.ToString(this);
     }
 }

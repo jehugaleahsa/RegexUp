@@ -1,7 +1,7 @@
 ﻿namespace RegexUp
 {
     /// <summary>
-    /// Match any character falling within a standard Unicode general category.
+    /// A character class matches any one of a set of characters.
     /// </summary>
     public interface ICharacterClass : ICharacterGroupMember, IExpression
     {

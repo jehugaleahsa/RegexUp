@@ -7,7 +7,7 @@ namespace RegexUp
     /// <summary>
     /// Represents the top-level regular expression.
     /// </summary>
-    public interface IRegularExpression
+    public interface IRegularExpression : IVisitableExpression
     {
         IEnumerable<IExpression> Members { get; }
 
@@ -33,5 +33,11 @@ namespace RegexUp
         /// <param name="matchTimeout">A time-out interval, or InfiniteMatchTimeout to indicate that the method should not time out.</param>
         /// <returns></returns>
         Regex ToRegex(RegexOptions options, TimeSpan matchTimeout);
+
+        /// <summary>
+        /// Gets the regular expression as an expression that can be nested.
+        /// </summary>
+        /// <returns>The expression.</returns>
+        IExpression AsExpression();
     }
 }

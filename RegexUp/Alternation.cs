@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace RegexUp
 {
     /// <summary>
     /// Provides factory methods for creating alternations.
     /// </summary>
-    public sealed class Alternation : IAlternation, IExpression, IContainer, IExpressionEncoder
+    public sealed class Alternation : IAlternation, IExpression, IContainer
     {
         /// <summary>
         /// Creates an alternation consisting of the given alternatives.
@@ -60,15 +59,8 @@ namespace RegexUp
             return alternatives.Count > 1 || alternatives[0].NeedsGroupedToQuantify();
         }
 
-        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
-        {
-            string encoded = String.Join("|", alternatives
-                .Cast<IExpressionEncoder>()
-                .Select((e, i) => e.Encode(ExpressionContext.Alternation, i, alternatives.Count))
-            );
-            return encoded;
-        }
+        void IVisitableExpression.Accept(ExpressionVisitor visitor) => visitor.Visit(this);
 
-        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group, 0, 1);
+        public override string ToString() => EncodingExpressionVisitor.ToString(this);
     }
 }

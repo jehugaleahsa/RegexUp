@@ -1,27 +1,21 @@
-﻿using System;
-
-namespace RegexUp
+﻿namespace RegexUp
 {
-    internal sealed class OctalEscape : IOctalEscape, IExpressionEncoder
+    internal sealed class OctalEscape : IOctalEscape
     {
-        private readonly int width;
-
         public OctalEscape(int code, int width)
         {
-            this.CharacterCode = code;
-            this.width = width;
+            CharacterCode = code;
+            Width = width;
         }
 
         public int CharacterCode { get; }
 
+        public int Width { get; }
+
         public bool NeedsGroupedToQuantify() => false;
 
-        public string Encode(ExpressionContext context, int position, int length)
-        {
-            var octalString = Convert.ToString(CharacterCode, 8).PadLeft(width, '0');
-            return $@"\{octalString}";
-        }
+        void IVisitableExpression.Accept(ExpressionVisitor visitor) => visitor.Visit(this);
 
-        public override string ToString() => Encode(ExpressionContext.Group, 0, 1);
+        public override string ToString() => EncodingExpressionVisitor.ToString(this);
     }
 }

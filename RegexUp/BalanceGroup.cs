@@ -89,21 +89,8 @@ namespace RegexUp
 
         public bool UseQuotes { get; set; }
 
-        protected override string OnEncode()
-        {
-            var parts = new[] 
-            {
-                "(?",
-                UseQuotes ? "'" : "<",
-                Current,
-                "-",
-                Previous,
-                UseQuotes ? "'" : ">",
-                EncodeMembers(),
-                ")"
-            };
-            var encoded = String.Join(String.Empty, parts);
-            return encoded;
-        }
+        protected override void OnAccept(ExpressionVisitor visitor) => visitor.Visit(this);
+
+        public override string ToString() => EncodingExpressionVisitor.ToString(this);
     }
 }

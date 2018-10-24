@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace RegexUp
@@ -56,44 +55,42 @@ namespace RegexUp
             return regularExpression;
         }
 
-        private readonly List<IExpression> members = new List<IExpression>();
+        private readonly CompoundExpression members = new CompoundExpression();
 
         private RegularExpression()
         {
         }
 
-        public IEnumerable<IExpression> Members => members;
+        public IEnumerable<IExpression> Members => members.Members;
         
-        public void Add(IExpression members)
+        public void Add(IExpression member)
         {
-            if (members == null)
+            if (member == null)
             {
-                throw new ArgumentNullException(nameof(members));
+                throw new ArgumentNullException(nameof(member));
             }
-            this.members.Add(members);
+            members.Add(member);
         }
         
         public Regex ToRegex(RegexOptions options = RegexOptions.None)
         {
-            var pattern = EncodeMembers();
+            var pattern = EncodingExpressionVisitor.ToString(members);
             return new Regex(pattern, options);
         }
 
         public Regex ToRegex(RegexOptions options, TimeSpan matchTimeout)
         {
-            var pattern = EncodeMembers();
+            var pattern = EncodingExpressionVisitor.ToString(members);
             return new Regex(pattern, options, matchTimeout);
         }
 
-        private string EncodeMembers()
+        public IExpression AsExpression()
         {
-            var encoded = String.Join(String.Empty, members
-                .Cast<IExpressionEncoder>()
-                .Select((e, i) => e.Encode(ExpressionContext.Group, i, members.Count))
-            );
-            return encoded;
+            return CompoundExpression.From(Members);
         }
 
-        public override string ToString() => EncodeMembers();
+        void IVisitableExpression.Accept(ExpressionVisitor visitor) => visitor.Visit(this);
+
+        public override string ToString() => EncodingExpressionVisitor.ToString(this);
     }
 }

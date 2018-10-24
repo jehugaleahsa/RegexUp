@@ -6,6 +6,11 @@
     public interface IBalancedGroup : IGroup
     {
         /// <summary>
+        /// Gets whether the names should be wrapped in quotes instead of angle brackets.
+        /// </summary>
+        bool UseQuotes { get; }
+
+        /// <summary>
         /// Gets the current group name, that the previous group name will be replaced with,
         /// </summary>
         string Current { get; }

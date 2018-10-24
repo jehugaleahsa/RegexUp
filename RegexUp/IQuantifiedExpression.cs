@@ -6,6 +6,16 @@
     public interface IQuantifiedExpression : IExpression
     {
         /// <summary>
+        /// Gets the expression being quantified.
+        /// </summary>
+        IExpression Expression { get; }
+
+        /// <summary>
+        /// Gets the quantifier used.
+        /// </summary>
+        string Quantifier { get; }
+
+        /// <summary>
         /// Gets the minimum number of times the expression may appear.
         /// </summary>
         int LowerBound { get; }

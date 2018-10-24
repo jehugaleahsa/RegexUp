@@ -8,7 +8,7 @@ namespace RegexUp
     /// <summary>
     /// Provides factory methods for creating different groups.
     /// </summary>
-    public abstract class Group : IGroup, IContainer, IExpressionEncoder
+    public abstract class Group : IGroup, IContainer
     {
         internal static void ValidateCaptureGroupName(string parameterName, string name)
         {
@@ -42,22 +42,6 @@ namespace RegexUp
 
         bool IExpression.NeedsGroupedToQuantify() => false;
 
-        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
-        {
-            return OnEncode();
-        }
-
-        protected abstract string OnEncode();
-
-        protected virtual string EncodeMembers()
-        {
-            var encoded = String.Join(String.Empty, members
-                .Cast<IExpressionEncoder>()
-                .Select((m, i) => m.Encode(ExpressionContext.Group, i, members.Count))
-            );
-            return encoded;
-        }
-
         public void Add(IExpression member)
         {
             if (member == null)
@@ -67,6 +51,11 @@ namespace RegexUp
             members.Add(member);
         }
 
-        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group, 0, 1);
+        void IVisitableExpression.Accept(ExpressionVisitor visitor)
+        {
+            OnAccept(visitor);
+        }
+
+        protected abstract void OnAccept(ExpressionVisitor visitor);
     }
 }

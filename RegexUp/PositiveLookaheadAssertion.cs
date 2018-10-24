@@ -39,11 +39,8 @@ namespace RegexUp
         {
         }
 
-        protected override string OnEncode()
-        {
-            var parts = new[] { "(?=", EncodeMembers(), ")" };
-            var encoded = String.Join(String.Empty, parts);
-            return encoded;
-        }
+        protected override void OnAccept(ExpressionVisitor visitor) => visitor.Visit(this);
+
+        public override string ToString() => EncodingExpressionVisitor.ToString(this);
     }
 }

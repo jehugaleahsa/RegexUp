@@ -5,7 +5,7 @@ namespace RegexUp
     /// <summary>
     /// Matches any single character in the group.
     /// </summary>
-    public interface ICharacterGroup : ICharacterClass, IExpression
+    public interface ICharacterGroup : ICharacterClass
     {
         /// <summary>
         /// Gets or sets whether the the character group should be negated.

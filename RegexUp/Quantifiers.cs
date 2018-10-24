@@ -15,7 +15,7 @@ namespace RegexUp
         /// <returns>The quantified expression.</returns>
         public static IQuantifiedExpression ZeroOrMore(IExpression expression, bool isGreedy = true)
         {
-            return new Quantifier(expression, "*") { LowerBound = 0, IsGreedy = isGreedy };
+            return new QuantifiedExpression(expression, "*") { LowerBound = 0, IsGreedy = isGreedy };
         }
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace RegexUp
         /// <returns>The quantified expression.</returns>
         public static IQuantifiedExpression OneOrMore(IExpression expression, bool isGreedy = true)
         {
-            return new Quantifier(expression, "+") { LowerBound = 1, IsGreedy = isGreedy };
+            return new QuantifiedExpression(expression, "+") { LowerBound = 1, IsGreedy = isGreedy };
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace RegexUp
         /// <returns>The quantified expression.</returns>
         public static IQuantifiedExpression ZeroOrOne(IExpression expression, bool isGreedy = true)
         {
-            return new Quantifier(expression, "?") { LowerBound = 0, UpperBound = 1, IsGreedy = isGreedy };
+            return new QuantifiedExpression(expression, "?") { LowerBound = 0, UpperBound = 1, IsGreedy = isGreedy };
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace RegexUp
         /// <returns>The quantified expression.</returns>
         public static IQuantifiedExpression Exactly(IExpression expression, int occurrences, bool isGreedy = true)
         {
-            return new Quantifier(expression, $"{{{occurrences}}}") { LowerBound = occurrences, UpperBound = occurrences, IsGreedy = isGreedy };
+            return new QuantifiedExpression(expression, $"{{{occurrences}}}") { LowerBound = occurrences, UpperBound = occurrences, IsGreedy = isGreedy };
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace RegexUp
         /// <returns>The quantified expression.</returns>
         public static IQuantifiedExpression AtLeast(IExpression expression, int occurrences, bool isGreedy = true)
         {
-            return new Quantifier(expression, $"{{{occurrences},}}") { LowerBound = occurrences, IsGreedy = isGreedy };
+            return new QuantifiedExpression(expression, $"{{{occurrences},}}") { LowerBound = occurrences, IsGreedy = isGreedy };
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace RegexUp
             {
                 throw new ArgumentException(Resources.InvalidMinMax, nameof(max));
             }
-            return new Quantifier(expression, $"{{{min},{max}}}") { LowerBound = min, UpperBound = max, IsGreedy = isGreedy };
+            return new QuantifiedExpression(expression, $"{{{min},{max}}}") { LowerBound = min, UpperBound = max, IsGreedy = isGreedy };
         }
     }
 }

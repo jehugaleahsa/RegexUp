@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace RegexUp
+﻿namespace RegexUp
 {
     /// <summary>
     /// Provides factory methods for creating inline options.
     /// </summary>
-    public sealed class InlineOptions : IInlineOptions, IExpressionEncoder
+    public sealed class InlineOptions : IInlineOptions
     {
         /// <summary>
         /// Creates inline options that can enable or disable options for the remainder of the current expression.
@@ -26,21 +23,10 @@ namespace RegexUp
 
         public GroupRegexOptions DisabledOptions { get; set; }
 
-        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
-        {
-            var parts = new List<string>() { "(?", OptionsGroup.EncodeOptions(EnabledOptions) };
-            if (DisabledOptions != GroupRegexOptions.None)
-            {
-                parts.Add("-");
-                parts.Add(OptionsGroup.EncodeOptions(DisabledOptions));
-            }
-            parts.Add(")");
-            var encoded = String.Join(String.Empty, parts);
-            return encoded;
-        }
-
-        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group, 0, 1);
-
         bool IExpression.NeedsGroupedToQuantify() => false;
+
+        void IVisitableExpression.Accept(ExpressionVisitor visitor) => visitor.Visit(this);
+
+        public override string ToString() => EncodingExpressionVisitor.ToString(this);
     }
 }

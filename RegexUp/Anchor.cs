@@ -1,6 +1,6 @@
 ﻿namespace RegexUp
 {
-    internal sealed class Anchor : IAnchor, IExpressionEncoder
+    internal sealed class Anchor : IAnchor
     {
         public Anchor(string value)
         {
@@ -11,8 +11,8 @@
 
         public bool NeedsGroupedToQuantify() => false;
 
-        public string Encode(ExpressionContext context, int position, int length) => Value;
+        public void Accept(ExpressionVisitor visitor) => visitor.Visit(this);
 
-        public override string ToString() => Value;
+        public override string ToString() => EncodingExpressionVisitor.ToString(this);
     }
 }

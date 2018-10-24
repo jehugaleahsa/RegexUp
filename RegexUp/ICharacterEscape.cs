@@ -5,5 +5,9 @@
     /// </summary>
     public interface ICharacterEscape : ICharacterGroupMember, IExpression
     {
+        /// <summary>
+        /// Gets literal value for the escape.
+        /// </summary>
+        string Value { get; }
     }
 }

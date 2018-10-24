@@ -1,6 +1,6 @@
 ﻿namespace RegexUp
 {
-    internal sealed class ControlCharacterEscape : IControlCharacterEscape, IExpressionEncoder
+    internal sealed class ControlCharacterEscape : IControlCharacterEscape
     {
         public ControlCharacterEscape(char controlCharacter)
         {
@@ -11,11 +11,8 @@
 
         public bool NeedsGroupedToQuantify() => false;
 
-        public string Encode(ExpressionContext context, int position, int length)
-        {
-            return $@"\c{ControlCharacter}";
-        }
+        void IVisitableExpression.Accept(ExpressionVisitor visitor) => visitor.Visit(this);
 
-        public override string ToString() => Encode(ExpressionContext.Group, 0, 1);
+        public override string ToString() => EncodingExpressionVisitor.ToString(this);
     }
 }

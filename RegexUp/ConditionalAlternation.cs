@@ -6,7 +6,7 @@ namespace RegexUp
     /// <summary>
     /// Provides factory methods for creating alternations.
     /// </summary>
-    public sealed class ConditionalAlternation : IConditionalAlternation, IExpressionEncoder
+    public sealed class ConditionalAlternation : IConditionalAlternation
     {
         /// <summary>
         /// Creates an alternation that tries to match the 'yes' option if the expression is matched.
@@ -46,22 +46,8 @@ namespace RegexUp
 
         public bool NeedsGroupedToQuantify() => false;
 
-        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
-        {
-            var parts = new List<string>() { "(?(" };
-            parts.Add(((IExpressionEncoder)Expression).Encode(ExpressionContext.Group, 0, 1));
-            parts.Add( ")");
-            parts.Add(((IExpressionEncoder)YesOption).Encode(ExpressionContext.Alternation, 0, 2));
-            if (NoOption != null)
-            {
-                parts.Add("|");
-                parts.Add(((IExpressionEncoder)NoOption).Encode(ExpressionContext.Alternation, 1, 2));
-            }
-            parts.Add(")");
-            var encoded = String.Join(String.Empty, parts);
-            return encoded;
-        }
+        void IVisitableExpression.Accept(ExpressionVisitor visitor) => visitor.Visit(this);
 
-        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.Group, 0, 1);
+        public override string ToString() => EncodingExpressionVisitor.ToString(this);
     }
 }

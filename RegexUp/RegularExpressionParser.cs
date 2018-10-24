@@ -24,7 +24,7 @@ namespace RegexUp
 
             public void Parse(RegularExpression regularExpression)
             {
-                IContainer container = new Expression();
+                IContainer container = new CompoundExpression();
                 container = Parse(container);
                 InheritMembers(regularExpression, container);
             }
@@ -330,7 +330,7 @@ namespace RegexUp
                 var names = name?.Split(new[] { '-' }, 2);
                 if (name == null || names.Length == 1)
                 {
-                    IContainer container = new Expression();
+                    IContainer container = new CompoundExpression();
                     container = Parse(container);
                     var group = new CaptureGroup() { Name = name, UseQuotes = useQuotes };
                     InheritMembers(group, container);
@@ -338,7 +338,7 @@ namespace RegexUp
                 }
                 else
                 {
-                    IContainer container = new Expression();
+                    IContainer container = new CompoundExpression();
                     container = Parse(container);
                     var (current, previous) = (names[0], names[1]);
                     var group = new BalancedGroup() { Current = current, Previous = previous, UseQuotes = useQuotes };
@@ -358,7 +358,7 @@ namespace RegexUp
             private INonCaptureGroup ParseNonCaptureGroup()
             {
                 ++index; // swallow ':'
-                IContainer container = new Expression();
+                IContainer container = new CompoundExpression();
                 container = Parse(container);
                 var group = new NonCaptureGroup();
                 InheritMembers(group, container);
@@ -380,7 +380,7 @@ namespace RegexUp
             private INegativeLookbehindAssertion ParseNegativeLookbehindGroup()
             {
                 ++index; // swallow the '!'
-                IContainer container = new Expression();
+                IContainer container = new CompoundExpression();
                 container = Parse(container);
                 var group = new NegativeLookbehindAssertion();
                 InheritMembers(group, container);
@@ -390,7 +390,7 @@ namespace RegexUp
             private IPositiveLookbehindAssertion ParsePositiveLookbehindGroup()
             {
                 ++index; // swallow the '='
-                IContainer container = new Expression();
+                IContainer container = new CompoundExpression();
                 container = Parse(container);
                 var group = new PositiveLookbehindAssertion();
                 InheritMembers(group, container);
@@ -400,7 +400,7 @@ namespace RegexUp
             private INegativeLookaheadAssertion ParseNegativeLookaheadGroup()
             {
                 ++index; // swallow the '!'
-                IContainer container = new Expression();
+                IContainer container = new CompoundExpression();
                 container = Parse(container);
                 var group = new NegativeLookaheadAssertion();
                 InheritMembers(group, container);
@@ -410,7 +410,7 @@ namespace RegexUp
             private IPositiveLookaheadAssertion ParsePositiveLookaheadGroup()
             {
                 ++index; // swallow the '='
-                IContainer container = new Expression();
+                IContainer container = new CompoundExpression();
                 container = Parse(container);
                 var group = new PositiveLookaheadAssertion();
                 InheritMembers(group, container);
@@ -438,7 +438,7 @@ namespace RegexUp
                 if (regex[index] == ':')
                 {
                     ++index; // swallow ':'
-                    IContainer container = new Expression();
+                    IContainer container = new CompoundExpression();
                     container = Parse(container);
                     var group = new OptionsGroup() { EnabledOptions = enabled, DisabledOptions = disabled };
                     InheritMembers(group, container);
@@ -467,7 +467,7 @@ namespace RegexUp
             private INonbacktrackingAssertion ParseNonbacktrackingAssertion()
             {
                 ++index; // swallow the '>'
-                IContainer container = new Expression();
+                IContainer container = new CompoundExpression();
                 container = Parse(container);
                 var group = new NonbacktrackingAssertion();
                 InheritMembers(group, container);
@@ -477,11 +477,11 @@ namespace RegexUp
             private IExpression ParseConditionalAlternation()
             {
                 ++index; // swallow '('
-                IContainer expressionOrName = new Expression();
+                IContainer expressionOrName = new CompoundExpression();
                 expressionOrName = Parse(expressionOrName);
                 ++index; // swallow ')'
 
-                IContainer container = new Expression();
+                IContainer container = new CompoundExpression();
                 container = Parse(container);
                 
                 IExpression yes = null;
@@ -607,7 +607,7 @@ namespace RegexUp
                 var alternation = new Alternation();
                 alternation.Add((IExpression)container);
 
-                var rightContainer = new Expression();
+                var rightContainer = new CompoundExpression();
                 var right = Parse(rightContainer);
                 if (right is IAlternation rightAlternation)
                 {
@@ -699,7 +699,7 @@ namespace RegexUp
 
             private static void InheritMembers(IContainer parent, IContainer child)
             {
-                if (child is Expression expression)
+                if (child is CompoundExpression expression)
                 {
                     foreach (var subExpression in expression.Members)
                     {

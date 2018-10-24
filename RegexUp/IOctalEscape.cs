@@ -9,5 +9,10 @@
         /// Gets the numeric value for the octal character code.
         /// </summary>
         int CharacterCode { get; }
+
+        /// <summary>
+        /// Gets the number of digits the octal escape should use.
+        /// </summary>
+        int Width { get; }
     }
 }

@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace RegexUp
+﻿namespace RegexUp
 {
-    internal sealed class UnicodeEscape : IUnicodeEscape, IExpressionEncoder
+    internal sealed class UnicodeEscape : IUnicodeEscape
     {
         public UnicodeEscape(int code)
         {
@@ -13,12 +11,8 @@ namespace RegexUp
 
         public bool NeedsGroupedToQuantify() => false;
 
-        public string Encode(ExpressionContext context, int position, int length)
-        {
-            var hexidecimalString = Convert.ToString(CharacterCode, 16).PadLeft(4, '0');
-            return $@"\u{hexidecimalString}";
-        }
+        void IVisitableExpression.Accept(ExpressionVisitor visitor) => visitor.Visit(this);
 
-        public override string ToString() => Encode(ExpressionContext.Group, 0, 1);
+        public override string ToString() => EncodingExpressionVisitor.ToString(this);
     }
 }

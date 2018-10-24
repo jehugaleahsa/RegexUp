@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using RegexUp.Properties;
 
 namespace RegexUp
@@ -7,7 +6,7 @@ namespace RegexUp
     /// <summary>
     /// Porvides factory methods for creating character ranges.
     /// </summary>
-    public sealed class Range : IRange, IExpressionEncoder
+    public sealed class Range : IRange
     {
         /// <summary>
         /// Creates a range of characters.
@@ -45,15 +44,8 @@ namespace RegexUp
 
         public ICharacterGroupMember Last { get; }
 
-        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
-        {
-            var first = ((IExpressionEncoder)First).Encode(ExpressionContext.CharacterGroup, 0, 2);
-            var last = ((IExpressionEncoder)Last).Encode(ExpressionContext.CharacterGroup, 1, 2);
-            var parts = new List<string>() { first, "-", last };
-            var encoded = String.Join(String.Empty, parts);
-            return encoded;
-        }
+        void IVisitableExpression.Accept(ExpressionVisitor visitor) => visitor.Visit(this);
 
-        public override string ToString() => ((IExpressionEncoder)this).Encode(ExpressionContext.CharacterGroup, 0, 1);
+        public override string ToString() => EncodingExpressionVisitor.ToString(this);
     }
 }

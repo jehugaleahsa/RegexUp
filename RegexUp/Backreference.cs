@@ -6,7 +6,7 @@ namespace RegexUp
     /// <summary>
     /// Provides factory methods for creating backreferences.
     /// </summary>
-    public sealed class Backreference : IBackreference, IExpressionEncoder
+    public sealed class Backreference : IBackreference
     {
         /// <summary>
         /// Creates a backreference for the group in given position.
@@ -50,16 +50,8 @@ namespace RegexUp
 
         bool IExpression.NeedsGroupedToQuantify() => false;
 
-        string IExpressionEncoder.Encode(ExpressionContext context, int position, int length)
-        {
-            if (IsNamed)
-            {
-                return UseQuotes ? $@"\k'{Reference}'" : $@"\k<{Reference}>";
-            }
-            else
-            {
-                return $@"\{Reference}";
-            }
-        }
+        void IVisitableExpression.Accept(ExpressionVisitor visitor) => visitor.Visit(this);
+
+        public override string ToString() => EncodingExpressionVisitor.ToString(this);
     }
 }

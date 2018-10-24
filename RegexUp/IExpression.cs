@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents one or more sub-expressions.
     /// </summary>
-    public interface IExpression
+    public interface IExpression : IVisitableExpression
     {
         /// <summary>
         /// Gets whether the expression needs to be wrapped in parentheses to be quantified.
