@@ -55,6 +55,9 @@ var combined = RegularExpression.Of(
 
 The beauty here is you can write small expressions you can actually comprehend and then stitch them together. This avoids the explosively large code blocks you'd otherwise end up with, like in the Quick Example.
 
+## Expression Visitor
+Rather than try to manipulate an existing object model, a cleaner approach is to use the visitor pattern and build up a new model as you go. You can inherit from the `ExpressionVisitor` class and call the `void Visit(IVisitableExpression expression)` method to kick off the process. Internally, the same visitor pattern is used to generate the regex from the object model.
+
 ## Usage
 As this project is currently only experimental, I have not made it consumable via NuGet. In order to use this code, you must copy the source code into your project. If you have a use for this project and would like to experiment, please let me know and I will publish it to NuGet upon request.
 
