@@ -89,6 +89,8 @@ namespace RegexUp
             return CompoundExpression.From(Members);
         }
 
+        bool IExpression.NeedsGroupedToQuantify() => false;
+
         void IVisitableExpression.Accept(ExpressionVisitor visitor) => visitor.Visit(this);
 
         public override string ToString() => EncodingExpressionVisitor.ToString(this);

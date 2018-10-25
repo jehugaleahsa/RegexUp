@@ -51,7 +51,17 @@ namespace RegexUp
             {
                 throw new ArgumentNullException(nameof(alterivative));
             }
-            alternatives.Add(alterivative);
+            if (alterivative is IAlternation other)
+            {
+                foreach (var otherAlternative in other.Alternatives)
+                {
+                    alternatives.Add(otherAlternative);
+                }
+            }
+            else
+            {
+                alternatives.Add(alterivative);
+            }
         }
 
         bool IExpression.NeedsGroupedToQuantify()

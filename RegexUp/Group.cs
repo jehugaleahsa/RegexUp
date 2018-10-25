@@ -32,22 +32,18 @@ namespace RegexUp
             }
         }
 
-        private readonly List<IExpression> members = new List<IExpression>();
+        private readonly CompoundExpression members = new CompoundExpression();
 
         protected Group()
         {
         }
 
-        public IEnumerable<IExpression> Members => members;
+        public IEnumerable<IExpression> Members => members.Members;
 
         bool IExpression.NeedsGroupedToQuantify() => false;
 
         public void Add(IExpression member)
         {
-            if (member == null)
-            {
-                throw new ArgumentNullException(nameof(member));
-            }
             members.Add(member);
         }
 

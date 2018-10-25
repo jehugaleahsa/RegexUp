@@ -51,7 +51,14 @@ namespace RegexUp
             {
                 throw new ArgumentNullException(nameof(member));
             }
-            members.Add(member);
+            if (member is CompoundExpression compoundExpression)
+            {
+                members.AddRange(compoundExpression.members);
+            }
+            else
+            {
+                members.Add(member);
+            }
         }
 
         bool IExpression.NeedsGroupedToQuantify() => members.Count > 1 || members[0].NeedsGroupedToQuantify();
