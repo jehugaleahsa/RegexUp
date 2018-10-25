@@ -31,62 +31,60 @@ namespace RegexUp
             private IExpression Parse()
             {
                 var alternatives = new List<IExpression>();
-                IContainer container = new CompoundExpression();
+                var expression = new CompoundExpression();
                 while (index != regex.Length)
                 {
-                    var item = ParseInternal(container);
-                    if (item == null)
+                    if (regex[index] == '|')
                     {
-                        break;
-                    }
-                    // If we get back the container we passed in, then we've encountered a child alternation.
-                    if (item == container)
-                    {
-                        alternatives.Add(container);
-                        container = new CompoundExpression();
+                        ++index;
+                        alternatives.Add(expression);
+                        expression = new CompoundExpression();
                     }
                     else
                     {
-                        container.Add(item);
+                        var item = ParseInternal();
+                        if (item == null)
+                        {
+                            break;
+                        }
+                        expression.Add(item);
                     }
                 }
                 if (alternatives.Count == 0)
                 {
-                    return container;
+                    return expression;
                 }
                 else
                 {
-                    alternatives.Add(container);
+                    alternatives.Add(expression);
                     return Alternation.From(alternatives);
                 }
             }
 
-            private IExpression ParseInternal(IContainer container)
+            private IExpression ParseInternal()
             {
                 char nextChar = regex[index];
                 switch (nextChar)
                 {
-                    case '^': return ParseAnchor(container, Anchors.Carot);
-                    case '$': return ParseAnchor(container, Anchors.Dollar);
-                    case '.': return ParseCharacterClass(container, CharacterClasses.Wildcard);
-                    case '\\': return ParseEscapeSequence(container);
-                    case '[': return ParseCharacterGroup(container);
-                    case '(': return ParseGroup(container);
-                    case '|': return ParseAlternation(container);
-                    case ')':
-                        return null;
-                    default: return ParseLiteral(container, Literal.For(regex[index]));
+                    case '^': return ParseAnchor(Anchors.Carot);
+                    case '$': return ParseAnchor(Anchors.Dollar);
+                    case '.': return ParseCharacterClass(CharacterClasses.Wildcard);
+                    case '\\': return ParseEscapeSequence();
+                    case '[': return ParseCharacterGroup();
+                    case '(': return ParseGroup();
+                    case ')': return null;
+                    default: return ParseLiteral(Literal.For(regex[index]));
                 }
             }
 
-            private IExpression ParseAnchor(IContainer container, IExpression current)
+            private IExpression ParseAnchor(IExpression current)
             {
                 ++index;
                 current = Quantify(current);
                 return current;
             }
 
-            private IExpression ParseLiteral(IContainer container, IExpression current)
+            private IExpression ParseLiteral(IExpression current)
             {
                 ++index;
                 current = Quantify(current);
@@ -115,14 +113,14 @@ namespace RegexUp
                 }
             }
 
-            private IExpression ParseCharacterClass(IContainer container, IExpression current)
+            private IExpression ParseCharacterClass(IExpression current)
             {
                 ++index;
                 current = Quantify(current);
                 return current;
             }
 
-            private IExpression ParseEscapeSequence(IContainer container)
+            private IExpression ParseEscapeSequence()
             {
                 var current = ParseEscapeSequenceInternal(ExpressionContext.Group);
                 ++index;
@@ -251,7 +249,7 @@ namespace RegexUp
                 return new UnicodeCategory($@"\{(isPositive ? 'p' : 'P')}{{{category}}}");
             }
 
-            private IExpression ParseCharacterGroup(IContainer container)
+            private IExpression ParseCharacterGroup()
             {
                 IExpression current = ParseCharacterGroupInternal();
                 ++index;
@@ -326,7 +324,7 @@ namespace RegexUp
                 }
             }
 
-            private IExpression ParseGroup(IContainer container)
+            private IExpression ParseGroup()
             {
                 IExpression current = ParseGroupInternal();
                 ++index; // swallow ')'
