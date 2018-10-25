@@ -106,5 +106,12 @@ namespace RegexUp.Tests
         {
             new Regex(@"(?#This is a message with an \) escaped parenthesis)");
         }
+
+        [TestMethod]
+        public void PatternWhitespace_WhitespaceIgnored()
+        {
+            var regex = new Regex(@"This is a pattern with whitespace", RegexOptions.IgnorePatternWhitespace);
+            Assert.IsTrue(regex.IsMatch("Thisisapatternwithwhitespace"));
+        }
     }
 }

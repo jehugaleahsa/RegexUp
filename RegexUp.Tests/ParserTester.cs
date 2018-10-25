@@ -343,13 +343,13 @@ namespace RegexUp.Tests
         [TestMethod]
         public void Parse_CharacterGroup_LeadingDash()
         {
-            RoundTripHelper.AssertRoundTrips("[-z]", @"[\-z]");
+            RoundTripHelper.AssertRoundTrips("[-z]", RegexOptions.None, @"[\-z]");
         }
 
         [TestMethod]
         public void Parse_CharacterGroup_LeadingDash_Negated()
         {
-            RoundTripHelper.AssertRoundTrips("[^-z]", @"[^\-z]");
+            RoundTripHelper.AssertRoundTrips("[^-z]", RegexOptions.None, @"[^\-z]");
         }
 
         [TestMethod]
@@ -471,6 +471,12 @@ namespace RegexUp.Tests
         }
 
         [TestMethod]
+        public void Parse_OptionsGroup_IgnoreWhitespace_StopsEscaping()
+        {
+            RoundTripHelper.AssertRoundTrips(@"Yes escaping(?x:No escaping)", RegexOptions.None, @"Yes\ escaping(?x:No escaping)");
+        }
+
+        [TestMethod]
         public void Parse_BalanceGroup()
         {
             RoundTripHelper.AssertRoundTrips(@"((?'Open'\()[^)]*)+((?'Close-Open')[^()]*)+");
@@ -504,6 +510,12 @@ namespace RegexUp.Tests
             RoundTripHelper.AssertRoundTrips("abc");
         }
 
+        [TestMethod]
+        public void PatternWhitespace_WhitespaceIgnored_NoEscaping()
+        {
+            RoundTripHelper.AssertRoundTrips(@"This is a pattern with whitespace", RegexOptions.IgnorePatternWhitespace);
+        }
+
         #endregion
 
         #region Quantifiers
@@ -535,7 +547,7 @@ namespace RegexUp.Tests
         [TestMethod]
         public void Parse_Literal_Exactly_WithWhitespace()
         {
-            RoundTripHelper.AssertRoundTrips("a{ 5 }", "a{5}");
+            RoundTripHelper.AssertRoundTrips("a{ 5 }", RegexOptions.None, "a{5}");
         }
 
         [TestMethod]
@@ -547,7 +559,7 @@ namespace RegexUp.Tests
         [TestMethod]
         public void Parse_Literal_AtLeast_WithWhitespace()
         {
-            RoundTripHelper.AssertRoundTrips("a{ 5 , }", "a{5,}");
+            RoundTripHelper.AssertRoundTrips("a{ 5 , }", RegexOptions.None, "a{5,}");
         }
 
         [TestMethod]
@@ -559,7 +571,7 @@ namespace RegexUp.Tests
         [TestMethod]
         public void Parse_Literal_Between_WithWhitespace()
         {
-            RoundTripHelper.AssertRoundTrips("a{   5   ,   10  }", "a{5,10}");
+            RoundTripHelper.AssertRoundTrips("a{   5   ,   10  }", RegexOptions.None, "a{5,10}");
         }
 
         #endregion
@@ -628,6 +640,12 @@ namespace RegexUp.Tests
         public void Parse_InlineOptions_EnableAndDisable()
         {
             RoundTripHelper.AssertRoundTrips(@"A(?imnx-imnx)a");
+        }
+
+        [TestMethod]
+        public void Parse_InlineOptions_IgnoreWhitespace_StopsEscaping()
+        {
+            RoundTripHelper.AssertRoundTrips(@"Yes escaping(?x)No escaping", RegexOptions.None, @"Yes\ escaping(?x)No escaping");
         }
 
         #endregion

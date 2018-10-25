@@ -74,13 +74,13 @@ namespace RegexUp
         
         public Regex ToRegex(RegexOptions options = RegexOptions.None)
         {
-            var pattern = EncodingExpressionVisitor.ToString(members);
+            var pattern = EncodingExpressionVisitor.ToString(members, options);
             return new Regex(pattern, options);
         }
 
         public Regex ToRegex(RegexOptions options, TimeSpan matchTimeout)
         {
-            var pattern = EncodingExpressionVisitor.ToString(members);
+            var pattern = EncodingExpressionVisitor.ToString(members, options);
             return new Regex(pattern, options, matchTimeout);
         }
 

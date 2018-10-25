@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace RegexUp
 {
@@ -10,14 +11,34 @@ namespace RegexUp
         private readonly StringBuilder builder = new StringBuilder();
         private readonly Stack<RegexState> state = new Stack<RegexState>();
 
+        public EncodingExpressionVisitor(GroupRegexOptions options)
+        {
+            PushState(ExpressionContext.Group);
+            Options = options;
+        }
+
         private void PushState(ExpressionContext context, int length = 1)
         {
-            state.Push(new RegexState() { Context = context, Position = 0, Length = length });
+            var options = state.Count == 0 ? GroupRegexOptions.None : Options;
+            var newState = new RegexState()
+            {
+                Context = context,
+                Options = options,
+                Position = 0,
+                Length = length
+            };
+            state.Push(newState);
         }
 
         private void PopState()
         {
             state.Pop();
+        }
+
+        public GroupRegexOptions Options
+        {
+            get => state.Peek().Options;
+            set => state.Peek().Options = value;
         }
 
         public ExpressionContext Context => state.Peek().Context;
@@ -32,11 +53,38 @@ namespace RegexUp
 
         public override string ToString() => builder.ToString();
 
-        public static string ToString(IVisitableExpression expression)
+        public static string ToString(IVisitableExpression expression, RegexOptions options = RegexOptions.None)
         {
-            var visitor = new EncodingExpressionVisitor();
+            var groupOptions = GetGroupOptions(options);
+            var visitor = new EncodingExpressionVisitor(groupOptions);
             visitor.Visit(expression);
             return visitor.ToString();
+        }
+
+        private static GroupRegexOptions GetGroupOptions(RegexOptions options)
+        {
+            var result = GroupRegexOptions.None;
+            if ((options & RegexOptions.IgnoreCase) == RegexOptions.IgnoreCase)
+            {
+                result |= GroupRegexOptions.IgnoreCase;
+            }
+            if ((options & RegexOptions.Multiline) == RegexOptions.Multiline)
+            {
+                result |= GroupRegexOptions.Multiline;
+            }
+            if ((options & RegexOptions.ExplicitCapture) == RegexOptions.ExplicitCapture)
+            {
+                result |= GroupRegexOptions.ExplicitCapture;
+            }
+            if ((options & RegexOptions.Singleline) == RegexOptions.Singleline)
+            {
+                result |= GroupRegexOptions.Singleline;
+            }
+            if ((options & RegexOptions.IgnorePatternWhitespace) == RegexOptions.IgnorePatternWhitespace)
+            {
+                result |= GroupRegexOptions.IgnorePatternWhitespace;
+            }
+            return result;
         }
 
         public override void Visit(IAlternation instance)
@@ -178,94 +226,118 @@ namespace RegexUp
                 EncodeOptions(instance.DisabledOptions);
             }
             builder.Append(")");
+            Options |= instance.EnabledOptions;
+            Options &= ~instance.DisabledOptions;
         }
 
         public override void Visit(ILiteral instance)
         {
             if (Char.IsWhiteSpace(instance.Value))
             {
-                builder.Append($@"\{instance.Value}");
-                return;
+                VisitWhitespace(instance);
             }
-            if (Context == ExpressionContext.CharacterGroup)
+            else if (Context == ExpressionContext.CharacterGroup)
             {
-                switch (instance.Value)
-                {
-                    case '\\':
-                        builder.Append(@"\\");
-                        break;
-                    case '-':
-                        if (Position == Length - 1)
-                        {
-                            builder.Append(instance.Value);
-                        }
-                        else
-                        {
-                            builder.Append(@"\-");
-                        }
-                        break;
-                    case '^':
-                        if (Position == 0)
-                        {
-                            builder.Append(@"\^");
-                        }
-                        else
-                        {
-                            builder.Append(instance.Value);
-                        }
-                        break;
-                    default:
-                        builder.Append(instance.Value);
-                        break;
-                }
+                VisitCharacterGroupMember(instance);
             }
             else
             {
-                switch (instance.Value)
-                {
-                    case '\\':
-                        builder.Append(@"\\");
-                        break;
-                    case '*':
-                        builder.Append(@"\*");
-                        break;
-                    case '+':
-                        builder.Append(@"\+");
-                        break;
-                    case '?':
-                        builder.Append(@"\?");
-                        break;
-                    case '|':
-                        builder.Append(@"\|");
-                        break;
-                    case '{':
-                        builder.Append(@"\{");
-                        break;
-                    case '[':
-                        builder.Append(@"\[");
-                        break;
-                    case '(':
-                        builder.Append(@"\(");
-                        break;
-                    case ')':
-                        builder.Append(@"\)");
-                        break;
-                    case '^':
-                        builder.Append(@"\^");
-                        break;
-                    case '$':
-                        builder.Append(@"\$");
-                        break;
-                    case '.':
-                        builder.Append(@"\");
-                        break;
-                    case '#':
-                        builder.Append(@"\#");
-                        break;
-                    default:
+                VisitGroupMember(instance);
+            }
+        }
+
+        private void VisitWhitespace(ILiteral instance)
+        {
+            bool ignoreWhiteSpace = (Options & GroupRegexOptions.IgnorePatternWhitespace) == GroupRegexOptions.IgnorePatternWhitespace;
+            if (ignoreWhiteSpace)
+            {
+                builder.Append(instance.Value);
+            }
+            else
+            {
+                builder.Append($@"\{instance.Value}");
+            }
+        }
+
+        private void VisitCharacterGroupMember(ILiteral instance)
+        {
+            switch (instance.Value)
+            {
+                case '\\':
+                    builder.Append(@"\\");
+                    break;
+                case '-':
+                    if (Position == Length - 1)
+                    {
                         builder.Append(instance.Value);
-                        break;
-                }
+                    }
+                    else
+                    {
+                        builder.Append(@"\-");
+                    }
+                    break;
+                case '^':
+                    if (Position == 0)
+                    {
+                        builder.Append(@"\^");
+                    }
+                    else
+                    {
+                        builder.Append(instance.Value);
+                    }
+                    break;
+                default:
+                    builder.Append(instance.Value);
+                    break;
+            }
+        }
+
+        private void VisitGroupMember(ILiteral instance)
+        {
+            switch (instance.Value)
+            {
+                case '\\':
+                    builder.Append(@"\\");
+                    break;
+                case '*':
+                    builder.Append(@"\*");
+                    break;
+                case '+':
+                    builder.Append(@"\+");
+                    break;
+                case '?':
+                    builder.Append(@"\?");
+                    break;
+                case '|':
+                    builder.Append(@"\|");
+                    break;
+                case '{':
+                    builder.Append(@"\{");
+                    break;
+                case '[':
+                    builder.Append(@"\[");
+                    break;
+                case '(':
+                    builder.Append(@"\(");
+                    break;
+                case ')':
+                    builder.Append(@"\)");
+                    break;
+                case '^':
+                    builder.Append(@"\^");
+                    break;
+                case '$':
+                    builder.Append(@"\$");
+                    break;
+                case '.':
+                    builder.Append(@"\");
+                    break;
+                case '#':
+                    builder.Append(@"\#");
+                    break;
+                default:
+                    builder.Append(instance.Value);
+                    break;
             }
         }
 
@@ -322,6 +394,8 @@ namespace RegexUp
             }
             builder.Append(":");
             PushState(ExpressionContext.Group, instance.Members.Count());
+            Options |= instance.EnabledOptions;
+            Options &= ~instance.DisabledOptions;
             Join(String.Empty, instance.Members);
             PopState();
             builder.Append(")");
@@ -433,6 +507,8 @@ namespace RegexUp
 
         private sealed class RegexState
         {
+            public GroupRegexOptions Options { get; set; }
+
             public ExpressionContext Context { get; set; }
 
             public int Position { get; set; }
