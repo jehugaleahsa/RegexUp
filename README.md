@@ -32,9 +32,31 @@ Regular expressions are composed of a wide variety of special sequences and char
 *Note*: At the time of this writing, there is no support for x-mode comments. The current implementation of the regex parser does not keep track of the current state of the regular expression, meaning it cannot tell if the `IgnorePatternWhitespace` (a.k.a, `x`) is enabled.
 
 ## Quick Example
-Regular expressions are a very compact notation. Building the same regular expressions using classes and method calls is significantly more verbose. Furthermore, manipulating objects to generate an otherwise static regular expression requires runtime overhead that's unnecessary. As such, one use case for RegexUp is to generate regular expressions in a test project and then simply copy the generated regular expression string to your production code. Another use case is if you need to build your regex at runtime based on user input.
+Regular expressions are a very compact notation. Building the same regular expressions using classes and method calls is significantly more verbose. Please see this [example](https://github.com/jehugaleahsa/RegexUp/blob/master/RegexUp.Tests/RealWorldTester.cs#L9) unit test that constructs a regular expression for checking for valid URLs.
 
-Please see this [example](https://github.com/jehugaleahsa/RegexUp/blob/master/RegexUp.Tests/RealWorldTester.cs#L9) unit test that constructs a regular expression for checking for valid URLs.
+Manipulating objects to generate an otherwise static regular expression requires runtime overhead that's unnecessary. As such, one use case for RegexUp is to generate regular expressions in a test project and then simply copy the generated regular expression string to your production code. Another use case is if you need to build your regex at runtime based on user input. Basically, you might consider using RegexUp if you find yourself building up complex regular expressions via string concatenation.
+
+## Build in bits and pieces
+One of the most powerful features of this library is its ability to decompose regular expressions. It includes a small, yet powerful parser that can build an object model from an existing regular expression. Consider this quick example:
+
+```csharp
+// Overly simplistic email validator
+var emailRegex = RegularExpression.From(new Regex(@".+@.+\..+"));
+// Overly simplistic phone validator
+var phoneRegex = RegularExpression.From(new Regex(@"[0-9]{3}\-[0-9]{0,3}[0-9]{4}"));
+// Now build a regex combining them
+var combined = RegularExpression.Of(
+  Alternation.Of(
+    emailRegex.AsExpression(),
+    phoneRegex.AsExpression()
+  )
+);
+```
+
+The beauty here is you can write small expressions you can actually comprehend and then stitch them together. This avoids the explosively large code blocks you'd otherwise end up with, like in the Quick Example.
+
+## Expression Visitor
+Rather than try to manipulate an existing object model, a cleaner approach is to use the visitor pattern and build up a new model as you go. You can inherit from the `ExpressionVisitor` class and call the `void Visit(IVisitableExpression expression)` method to kick off the process. Internally, the same visitor pattern is used to generate the regex from the object model.
 
 ## Usage
 As this project is currently only experimental, I have not made it consumable via NuGet. In order to use this code, you must copy the source code into your project. If you have a use for this project and would like to experiment, please let me know and I will publish it to NuGet upon request.
