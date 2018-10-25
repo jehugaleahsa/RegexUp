@@ -11,10 +11,5 @@ namespace RegexUp
         /// Gets the alternative options.
         /// </summary>
         IEnumerable<IExpression> Alternatives { get; }
-
-        /// <summary>
-        /// Adds the expression as an alternative.
-        /// </summary>
-        void Add(IExpression alternative);
     }
 }

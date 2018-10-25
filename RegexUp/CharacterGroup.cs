@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace RegexUp
 {
@@ -76,7 +75,7 @@ namespace RegexUp
 
         public ICharacterGroup Exclusions { get; set; }
         
-        public void Add(ICharacterGroupMember member)
+        internal void Add(ICharacterGroupMember member)
         {
             if (member == null)
             {

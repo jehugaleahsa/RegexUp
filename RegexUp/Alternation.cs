@@ -45,7 +45,7 @@ namespace RegexUp
 
         public IEnumerable<IExpression> Alternatives => alternatives;
 
-        public void Add(IExpression alterivative)
+        internal void Add(IExpression alterivative)
         {
             if (alterivative == null)
             {
@@ -53,16 +53,15 @@ namespace RegexUp
             }
             if (alterivative is IAlternation other)
             {
-                foreach (var otherAlternative in other.Alternatives)
-                {
-                    alternatives.Add(otherAlternative);
-                }
+                alternatives.AddRange(other.Alternatives);
             }
             else
             {
                 alternatives.Add(alterivative);
             }
         }
+
+        void IContainer.Add(IExpression expression) => Add(expression);
 
         bool IExpression.NeedsGroupedToQuantify()
         {

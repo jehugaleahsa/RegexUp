@@ -24,11 +24,5 @@ namespace RegexUp
         /// Gets the character group representing the subset of characters to exclude -or null.
         /// </summary>
         ICharacterGroup Exclusions { get; set; }
-
-        /// <summary>
-        /// Add the literal, escaped characters or range to the character group.
-        /// </summary>
-        /// <param name="member">The literal, escape characters or range to add.</param>
-        void Add(ICharacterGroupMember member);
     }
 }

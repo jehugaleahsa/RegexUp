@@ -7,7 +7,7 @@ namespace RegexUp
     /// <summary>
     /// Provides factory methods for creating regular expressions.
     /// </summary>
-    public sealed class RegularExpression : IRegularExpression, IContainer
+    public sealed class RegularExpression : IRegularExpression
     {
         /// <summary>
         /// Creates a regular expression composed of the given subexpressions.
@@ -63,7 +63,7 @@ namespace RegexUp
 
         public IEnumerable<IExpression> Members => members.Members;
         
-        public void Add(IExpression member)
+        internal void Add(IExpression member)
         {
             if (member == null)
             {
@@ -88,8 +88,6 @@ namespace RegexUp
         {
             return CompoundExpression.From(Members);
         }
-
-        bool IExpression.NeedsGroupedToQuantify() => false;
 
         void IVisitableExpression.Accept(ExpressionVisitor visitor) => visitor.Visit(this);
 

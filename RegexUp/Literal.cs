@@ -37,7 +37,6 @@ namespace RegexUp
             {
                 return For(value[0]);
             }
-            var literals = value.Select(c => For(c));
             var compound = new CompoundLiteral();
             foreach (var character in value)
             {

@@ -24,8 +24,8 @@ namespace RegexUp
 
             public void Parse(RegularExpression regularExpression)
             {
-                var container = Parse();
-                regularExpression.Add(container);
+                var item = Parse();
+                regularExpression.Add(item);
             }
 
             private IExpression Parse()
@@ -375,18 +375,16 @@ namespace RegexUp
                 var names = name?.Split(new[] { '-' }, 2);
                 if (name == null || names.Length == 1)
                 {
-                    var container = Parse();
-                    var group = new CaptureGroup() { Name = name, UseQuotes = useQuotes };
-                    group.Add(container);
-                    return group;
+                    var options = new CaptureGroupOptions() { Name = name, UseQuotes = useQuotes };
+                    var item = Parse();
+                    return CaptureGroup.Of(options, item);
                 }
                 else
                 {
-                    var container = Parse();
                     var (current, previous) = (names[0], names[1]);
-                    var group = new BalancedGroup() { Current = current, Previous = previous, UseQuotes = useQuotes };
-                    group.Add(container);
-                    return group;
+                    var options = new BalanceGroupOptions() { UseQuotes = useQuotes };
+                    var item = Parse();
+                    return BalancedGroup.Of(current, previous, options, item);
                 }
             }
 
@@ -401,10 +399,8 @@ namespace RegexUp
             private INonCaptureGroup ParseNonCaptureGroup()
             {
                 ++index; // swallow ':'
-                var container = Parse();
-                var group = new NonCaptureGroup();
-                group.Add(container);
-                return group;
+                var item = Parse();
+                return NonCaptureGroup.Of(item);
             }
 
             private IGroup ParseNamedCaptureGroupBalanceGroupOrLookupbehindGroup()
@@ -422,37 +418,29 @@ namespace RegexUp
             private INegativeLookbehindAssertion ParseNegativeLookbehindGroup()
             {
                 ++index; // swallow the '!'
-                var container = Parse();
-                var group = new NegativeLookbehindAssertion();
-                group.Add(container);
-                return group;
+                var item = Parse();
+                return NegativeLookbehindAssertion.Of(item);
             }
 
             private IPositiveLookbehindAssertion ParsePositiveLookbehindGroup()
             {
                 ++index; // swallow the '='
-                var container = Parse();
-                var group = new PositiveLookbehindAssertion();
-                group.Add(container);
-                return group;
+                var item = Parse();
+                return PositiveLookbehindAssertion.Of(item);
             }
 
             private INegativeLookaheadAssertion ParseNegativeLookaheadGroup()
             {
                 ++index; // swallow the '!'
-                var container = Parse();
-                var group = new NegativeLookaheadAssertion();
-                group.Add(container);
-                return group;
+                var item = Parse();
+                return NegativeLookaheadAssertion.Of(item);
             }
 
             private IPositiveLookaheadAssertion ParsePositiveLookaheadGroup()
             {
                 ++index; // swallow the '='
-                var container = Parse();
-                var group = new PositiveLookaheadAssertion();
-                group.Add(container);
-                return group;
+                var item = Parse();
+                return PositiveLookaheadAssertion.Of(item);
             }
 
             private IExpression ParseOptions()
@@ -476,10 +464,8 @@ namespace RegexUp
                 if (regex[index] == ':')
                 {
                     ++index; // swallow ':'
-                    var container = Parse();
-                    var group = new OptionsGroup() { EnabledOptions = enabled, DisabledOptions = disabled };
-                    group.Add(container);
-                    return group;
+                    var item = Parse();
+                    return OptionsGroup.Of(enabled, disabled, item);
                 }
                 else
                 {
@@ -504,10 +490,8 @@ namespace RegexUp
             private INonbacktrackingAssertion ParseNonbacktrackingAssertion()
             {
                 ++index; // swallow the '>'
-                var container = Parse();
-                var group = new NonbacktrackingAssertion();
-                group.Add(container);
-                return group;
+                var item = Parse();
+                return NonbacktrackingAssertion.Of(item);
             }
 
             private IExpression ParseConditionalAlternation()
@@ -516,26 +500,20 @@ namespace RegexUp
                 var expressionOrName = Parse();
                 ++index; // swallow ')'
 
-                var container = Parse();
+                var item = Parse();
                 
                 IExpression yes = null;
                 IExpression no = null;
-                if (container is IAlternation alternation)
+                if (item is IAlternation alternation)
                 {
                     yes = alternation.Alternatives.First();
                     no = alternation.Alternatives.Skip(1).FirstOrDefault();
                 }
                 else
                 {
-                    yes = container;
+                    yes = item;
                 }
-                var group = new ConditionalAlternation()
-                {
-                    Expression = expressionOrName,
-                    YesOption = yes,
-                    NoOption = no
-                };
-                return group;
+                return ConditionalAlternation.For(expressionOrName, yes, no);
             }
 
             private IExpression ParseInlineComment()

@@ -12,12 +12,6 @@ namespace RegexUp
         IEnumerable<IExpression> Members { get; }
 
         /// <summary>
-        /// Adds the given expression to the regular expression.
-        /// </summary>
-        /// <param name="member">The expression to add.</param>
-        void Add(IExpression member);
-
-        /// <summary>
         /// Builds a regular expression from the expression.
         /// </summary>
         /// <param name="expression">The expression to build the regular expression from.</param>

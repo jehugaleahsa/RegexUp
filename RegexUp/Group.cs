@@ -8,7 +8,7 @@ namespace RegexUp
     /// <summary>
     /// Provides factory methods for creating different groups.
     /// </summary>
-    public abstract class Group : IGroup, IContainer
+    public abstract class Group : IGroup
     {
         internal static void ValidateCaptureGroupName(string parameterName, string name)
         {
@@ -42,7 +42,7 @@ namespace RegexUp
 
         bool IExpression.NeedsGroupedToQuantify() => false;
 
-        public void Add(IExpression member)
+        internal void Add(IExpression member)
         {
             members.Add(member);
         }

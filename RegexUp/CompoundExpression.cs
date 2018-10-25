@@ -45,21 +45,23 @@ namespace RegexUp
 
         public IEnumerable<IExpression> Members => members;
 
-        public void Add(IExpression member)
+        internal void Add(IExpression member)
         {
             if (member == null)
             {
                 throw new ArgumentNullException(nameof(member));
             }
-            if (member is CompoundExpression compoundExpression)
+            if (member is ICompoundExpression compoundExpression)
             {
-                members.AddRange(compoundExpression.members);
+                members.AddRange(compoundExpression.Members);
             }
             else
             {
                 members.Add(member);
             }
         }
+
+        void IContainer.Add(IExpression expression) => Add(expression);
 
         bool IExpression.NeedsGroupedToQuantify() => members.Count > 1 || members[0].NeedsGroupedToQuantify();
 
