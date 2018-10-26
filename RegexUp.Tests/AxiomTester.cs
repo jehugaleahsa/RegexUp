@@ -120,5 +120,14 @@ namespace RegexUp.Tests
             var regex = new Regex(@"[a-z ]", RegexOptions.IgnorePatternWhitespace);
             Assert.IsTrue(regex.IsMatch(" "));
         }
+
+        [TestMethod]
+        public void DuplicateGroupNames_BothMatch_SingleIndex_MultipleCaptures()
+        {
+            var regex = new Regex(@"(?<name>abc)\d*(?<name>def)");
+            var match = regex.Match("abc123def");
+            var nameGroup = match.Groups["name"];
+            Assert.AreEqual(2, nameGroup.Captures.Count);
+        }
     }
 }

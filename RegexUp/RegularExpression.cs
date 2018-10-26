@@ -51,7 +51,7 @@ namespace RegexUp
             }
             var parser = new RegularExpressionParser();
             var regularExpression = new RegularExpression();
-            parser.Parse(regularExpression, regex.ToString());
+            parser.Parse(regularExpression, regex.ToString(), regex.Options);
             return regularExpression;
         }
 

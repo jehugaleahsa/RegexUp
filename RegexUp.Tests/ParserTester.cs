@@ -679,5 +679,46 @@ namespace RegexUp.Tests
         }
 
         #endregion
+
+        #region XModeComment
+
+        [TestMethod]
+        public void Parse_XModeComment_FlagNotSet_InterpretedAsLiteral()
+        {
+            var regex = RegularExpression.From(new Regex("abc # This is a comment")).ToRegex();
+            Assert.IsTrue(regex.IsMatch("abc # This is a comment"));
+        }
+
+        [TestMethod]
+        public void Parse_XModeComment_FlagSet_IgnoresComment()
+        {
+            var regex = RegularExpression.From(
+                new Regex("abc # This is a comment", RegexOptions.IgnorePatternWhitespace)
+            ).ToRegex(RegexOptions.IgnorePatternWhitespace);
+            Assert.IsTrue(regex.IsMatch("abc"));
+        }
+
+        [TestMethod]
+        public void Parse_XModeComment_FlagSet_CommentLastCharacter()
+        {
+            RoundTripHelper.AssertRoundTrips("abc#", RegexOptions.IgnorePatternWhitespace);
+        }
+
+        [TestMethod]
+        public void Parse_XModeComment_FlagSet_Multiline_CommentLastCharacter()
+        {
+            const string pattern = @"abc#
+def";
+            RoundTripHelper.AssertRoundTrips(pattern, RegexOptions.IgnorePatternWhitespace | RegexOptions.Multiline);
+        }
+
+        [TestMethod]
+        public void Parse_XModeComment_FlagSet_Multiline_NoCarriageReturn_CommentLastCharacter()
+        {
+            const string pattern = "abc#\ndef";
+            RoundTripHelper.AssertRoundTrips(pattern, RegexOptions.IgnorePatternWhitespace | RegexOptions.Multiline);
+        }
+
+        #endregion
     }
 }

@@ -28,8 +28,7 @@ Regular expressions are composed of a wide variety of special sequences and char
 * **NonbacktrackingAssertion** - `a(?>bc)?bc`
 * **InlineOptions** - `A(?i)bc`
 * **InlineComment** - `ab(?#The next character to match will be 'c'.)c`
-
-*Note*: At the time of this writing, there is no support for x-mode comments. The current implementation of the regex parser does not keep track of the current state of the regular expression, meaning it cannot tell if the `IgnorePatternWhitespace` (a.k.a, `x`) is enabled.
+* **XModeComment** - `[0-9a-fA-F] # Hexidecimal digit` (Only enabled if `IgnorePatternWhitespace`, a.k.a, `x` mode, is set)
 
 ## Quick Example
 Regular expressions are a very compact notation. Building the same regular expressions using classes and method calls is significantly more verbose. Please see this [example](https://github.com/jehugaleahsa/RegexUp/blob/master/RegexUp.Tests/RealWorldTester.cs#L9) unit test that constructs a regular expression for checking for valid URLs.

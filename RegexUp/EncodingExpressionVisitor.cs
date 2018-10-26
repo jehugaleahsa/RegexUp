@@ -55,36 +55,10 @@ namespace RegexUp
 
         public static string ToString(IVisitableExpression expression, RegexOptions options = RegexOptions.None)
         {
-            var groupOptions = GetGroupOptions(options);
+            var groupOptions = GroupRegexOptionsUtilties.GetGroupOptions(options);
             var visitor = new EncodingExpressionVisitor(groupOptions);
             visitor.Visit(expression);
             return visitor.ToString();
-        }
-
-        private static GroupRegexOptions GetGroupOptions(RegexOptions options)
-        {
-            var result = GroupRegexOptions.None;
-            if ((options & RegexOptions.IgnoreCase) == RegexOptions.IgnoreCase)
-            {
-                result |= GroupRegexOptions.IgnoreCase;
-            }
-            if ((options & RegexOptions.Multiline) == RegexOptions.Multiline)
-            {
-                result |= GroupRegexOptions.Multiline;
-            }
-            if ((options & RegexOptions.ExplicitCapture) == RegexOptions.ExplicitCapture)
-            {
-                result |= GroupRegexOptions.ExplicitCapture;
-            }
-            if ((options & RegexOptions.Singleline) == RegexOptions.Singleline)
-            {
-                result |= GroupRegexOptions.Singleline;
-            }
-            if ((options & RegexOptions.IgnorePatternWhitespace) == RegexOptions.IgnorePatternWhitespace)
-            {
-                result |= GroupRegexOptions.IgnorePatternWhitespace;
-            }
-            return result;
         }
 
         public override void Visit(IAlternation instance)
