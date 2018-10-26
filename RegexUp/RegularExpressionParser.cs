@@ -388,13 +388,12 @@ namespace RegexUp
 
             private void RegisterGroupName(string name)
             {
-                if (name == null || groupIndexes.ContainsKey(name))
-                {
-                    return;
-                }
                 int positon = groupNames.Count;
                 groupNames.Add(name);
-                groupIndexes.Add(name, positon);
+                if (name != null && !groupIndexes.ContainsKey(name))
+                {
+                    groupIndexes.Add(name, positon);
+                }
             }
 
             private string ParseCaptureGroupName(char closingChar, int startIndex)
