@@ -88,15 +88,6 @@ namespace RegexUp.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An inline comment cannot contain a right parenthesis..
-        /// </summary>
-        internal static string InvalidComment {
-            get {
-                return ResourceManager.GetString("InvalidComment", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to A control character must be a letter between A and Z..
         /// </summary>
         internal static string InvalidControlCharacter {
@@ -120,6 +111,15 @@ namespace RegexUp.Properties {
         internal static string InvalidHexidecimalCode {
             get {
                 return ResourceManager.GetString("InvalidHexidecimalCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An inline comment cannot contain a right parenthesis or newlines..
+        /// </summary>
+        internal static string InvalidInlineComment {
+            get {
+                return ResourceManager.GetString("InvalidInlineComment", resourceCulture);
             }
         }
         
@@ -156,6 +156,15 @@ namespace RegexUp.Properties {
         internal static string InvalidUnicodeCode {
             get {
                 return ResourceManager.GetString("InvalidUnicodeCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An x-mode comment cannot contain a newline..
+        /// </summary>
+        internal static string InvalidXModeComment {
+            get {
+                return ResourceManager.GetString("InvalidXModeComment", resourceCulture);
             }
         }
         

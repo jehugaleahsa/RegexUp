@@ -113,5 +113,12 @@ namespace RegexUp.Tests
             var regex = new Regex(@"This is a pattern with whitespace", RegexOptions.IgnorePatternWhitespace);
             Assert.IsTrue(regex.IsMatch("Thisisapatternwithwhitespace"));
         }
+
+        [TestMethod]
+        public void PatternWhitespace_CharacterGroup_WhitespaceNotIgnored()
+        {
+            var regex = new Regex(@"[a-z ]", RegexOptions.IgnorePatternWhitespace);
+            Assert.IsTrue(regex.IsMatch(" "));
+        }
     }
 }

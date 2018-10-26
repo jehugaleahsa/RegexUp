@@ -473,7 +473,8 @@ namespace RegexUp.Tests
         [TestMethod]
         public void Parse_OptionsGroup_IgnoreWhitespace_StopsEscaping()
         {
-            RoundTripHelper.AssertRoundTrips(@"Yes escaping(?x:No escaping)", RegexOptions.None, @"Yes\ escaping(?x:No escaping)");
+            var regex = RegularExpression.From(new Regex(@"Yes escaping(?x:No escaping)")).ToRegex();
+            Assert.IsTrue(regex.IsMatch("Yes escapingNoescaping"));
         }
 
         [TestMethod]
@@ -645,7 +646,8 @@ namespace RegexUp.Tests
         [TestMethod]
         public void Parse_InlineOptions_IgnoreWhitespace_StopsEscaping()
         {
-            RoundTripHelper.AssertRoundTrips(@"Yes escaping(?x)No escaping", RegexOptions.None, @"Yes\ escaping(?x)No escaping");
+            var regex = RegularExpression.From(new Regex(@"Yes escaping(?x)No escaping")).ToRegex();
+            Assert.IsTrue(regex.IsMatch("Yes escapingNoescaping"));
         }
 
         #endregion

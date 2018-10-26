@@ -9,11 +9,11 @@ namespace RegexUp
         {
             if (comment == null)
             {
-                comment = String.Empty;
+                throw new ArgumentNullException(nameof(comment));
             }
-            else if (comment.Contains(")"))
+            if (comment.IndexOfAny(new[] { ')', '\n' }) != -1)
             {
-                throw new ArgumentException(Resources.InvalidComment, nameof(comment));
+                throw new ArgumentException(Resources.InvalidInlineComment, nameof(comment));
             }
             return new InlineComment(comment);
         }

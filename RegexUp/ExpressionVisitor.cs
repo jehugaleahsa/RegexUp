@@ -69,5 +69,7 @@
         public virtual void Visit(IUnicodeCategory instance) { }
 
         public virtual void Visit(IUnicodeEscape instance) { }
+
+        public virtual void Visit(IXModeComment instance) { }
     }
 }

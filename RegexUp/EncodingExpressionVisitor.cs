@@ -232,11 +232,7 @@ namespace RegexUp
 
         public override void Visit(ILiteral instance)
         {
-            if (Char.IsWhiteSpace(instance.Value))
-            {
-                VisitWhitespace(instance);
-            }
-            else if (Context == ExpressionContext.CharacterGroup)
+            if (Context == ExpressionContext.CharacterGroup)
             {
                 VisitCharacterGroupMember(instance);
             }
@@ -246,98 +242,45 @@ namespace RegexUp
             }
         }
 
-        private void VisitWhitespace(ILiteral instance)
+        private void VisitCharacterGroupMember(ILiteral instance)
         {
-            bool ignoreWhiteSpace = (Options & GroupRegexOptions.IgnorePatternWhitespace) == GroupRegexOptions.IgnorePatternWhitespace;
-            if (ignoreWhiteSpace)
-            {
-                builder.Append(instance.Value);
-            }
-            else
-            {
-                builder.Append($@"\{instance.Value}");
-            }
+            builder.Append(EscapeCharacterGroupLiteral(instance));
         }
 
-        private void VisitCharacterGroupMember(ILiteral instance)
+        private string EscapeCharacterGroupLiteral(ILiteral instance)
         {
             switch (instance.Value)
             {
-                case '\\':
-                    builder.Append(@"\\");
-                    break;
-                case '-':
-                    if (Position == Length - 1)
-                    {
-                        builder.Append(instance.Value);
-                    }
-                    else
-                    {
-                        builder.Append(@"\-");
-                    }
-                    break;
-                case '^':
-                    if (Position == 0)
-                    {
-                        builder.Append(@"\^");
-                    }
-                    else
-                    {
-                        builder.Append(instance.Value);
-                    }
-                    break;
-                default:
-                    builder.Append(instance.Value);
-                    break;
+                case '\\': return @"\\";
+                case '-': return (Position == Length - 1) ? instance.Value.ToString() : @"\-";
+                case '^': return (Position == 0) ? @"\^" : instance.Value.ToString();
+                default: return instance.Value.ToString();
             }
         }
 
         private void VisitGroupMember(ILiteral instance)
         {
+            builder.Append(EscapeGroupLiteral(instance));
+        }
+
+        private static string EscapeGroupLiteral(ILiteral instance)
+        {
             switch (instance.Value)
             {
-                case '\\':
-                    builder.Append(@"\\");
-                    break;
-                case '*':
-                    builder.Append(@"\*");
-                    break;
-                case '+':
-                    builder.Append(@"\+");
-                    break;
-                case '?':
-                    builder.Append(@"\?");
-                    break;
-                case '|':
-                    builder.Append(@"\|");
-                    break;
-                case '{':
-                    builder.Append(@"\{");
-                    break;
-                case '[':
-                    builder.Append(@"\[");
-                    break;
-                case '(':
-                    builder.Append(@"\(");
-                    break;
-                case ')':
-                    builder.Append(@"\)");
-                    break;
-                case '^':
-                    builder.Append(@"\^");
-                    break;
-                case '$':
-                    builder.Append(@"\$");
-                    break;
-                case '.':
-                    builder.Append(@"\");
-                    break;
-                case '#':
-                    builder.Append(@"\#");
-                    break;
-                default:
-                    builder.Append(instance.Value);
-                    break;
+                case '\\': return @"\\";
+                case '*': return @"\*";
+                case '+': return @"\+";
+                case '?': return @"\?";
+                case '|': return @"\|";
+                case '{': return @"\{";
+                case '[': return @"\[";
+                case '(': return @"\(";
+                case ')': return @"\)";
+                case '^': return @"\^";
+                case '$': return @"\$";
+                case '.': return @"\.";
+                case '#': return @"\#";
+                default: return instance.Value.ToString();
             }
         }
 
@@ -462,6 +405,16 @@ namespace RegexUp
         {
             var hexidecimalString = Convert.ToString(instance.CharacterCode, 16).PadLeft(4, '0');
             builder.Append($@"\u{hexidecimalString}");
+        }
+
+        public override void Visit(IXModeComment instance)
+        {
+            // If not in x-mode, do not output the comment
+            if ((Options & GroupRegexOptions.IgnorePatternWhitespace) != GroupRegexOptions.IgnorePatternWhitespace)
+            {
+                return;
+            }
+            builder.Append($"#{instance.Comment}");
         }
 
         private void Join(string separator, IEnumerable<IVisitableExpression> expressions)
