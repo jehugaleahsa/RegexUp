@@ -106,10 +106,7 @@ namespace RegexUp
 
             private IExpression ParseEscapeSequence()
             {
-                var current = ParseEscapeSequenceInternal(ExpressionContext.Group);
-                ++index;
-                current = Quantify(current);
-                return current;
+                return ParseEscapeSequenceInternal(ExpressionContext.Group);
             }
 
             private IExpression ParseEscapeSequenceInternal(ExpressionContext context)
@@ -118,40 +115,43 @@ namespace RegexUp
                 char nextChar = regex[index];
                 switch (nextChar)
                 {
-                    case 'A': return Anchors.A;
-                    case 'Z': return Anchors.Z;
-                    case 'z': return Anchors.z;
-                    case 'G': return Anchors.G;
-                    case 'b': return (context == ExpressionContext.CharacterGroup) ? (IExpression)CharacterEscapes.Backspace : Anchors.b;
-                    case 'B': return Anchors.B;
+                    case 'A': return ParseAnchor(Anchors.A);
+                    case 'Z': return ParseAnchor(Anchors.Z);
+                    case 'z': return ParseAnchor(Anchors.z);
+                    case 'G': return ParseAnchor(Anchors.G);
+                    case 'b':
+                        return (context == ExpressionContext.CharacterGroup) 
+                            ? ParseCharacterEscape(CharacterEscapes.Backspace)
+                            : ParseAnchor(Anchors.b);
+                    case 'B': return ParseAnchor(Anchors.B);
                     case 'k': return ParseNamedBackreference();
-                    case 'w': return CharacterClasses.Word;
-                    case 'W': return CharacterClasses.NonWord;
-                    case 's': return CharacterClasses.Whitespace;
-                    case 'S': return CharacterClasses.NonWhitespace;
-                    case 'd': return CharacterClasses.Digit;
-                    case 'D': return CharacterClasses.NonDigit;
+                    case 'w': return ParseCharacterClass(CharacterClasses.Word);
+                    case 'W': return ParseCharacterClass(CharacterClasses.NonWord);
+                    case 's': return ParseCharacterClass(CharacterClasses.Whitespace);
+                    case 'S': return ParseCharacterClass(CharacterClasses.NonWhitespace);
+                    case 'd': return ParseCharacterClass(CharacterClasses.Digit);
+                    case 'D': return ParseCharacterClass(CharacterClasses.NonDigit);
                     case 'p': return ParseUnicodeCategory(isPositive: true);
                     case 'P': return ParseUnicodeCategory(isPositive: false);
-                    case 'a': return CharacterEscapes.Bell;
-                    case 't': return CharacterEscapes.Tab;
-                    case 'r': return CharacterEscapes.CarriageReturn;
-                    case 'v': return CharacterEscapes.VerticalTab;
-                    case 'f': return CharacterEscapes.FormFeed;
-                    case 'n': return CharacterEscapes.NewLine;
-                    case 'e': return CharacterEscapes.Escape;
-                    case '.': return CharacterEscapes.Period;
-                    case '$': return CharacterEscapes.Dollar;
-                    case '^': return CharacterEscapes.Carot;
-                    case '{': return CharacterEscapes.LeftCurlyBrace;
-                    case '[': return CharacterEscapes.LeftSquareBracket;
-                    case '(': return CharacterEscapes.LeftParenthesis;
-                    case '|': return CharacterEscapes.Pipe;
-                    case ')': return CharacterEscapes.RightParenthesis;
-                    case '*': return CharacterEscapes.Asterisk;
-                    case '+': return CharacterEscapes.Plus;
-                    case '?': return CharacterEscapes.QuestionMark;
-                    case '\\': return CharacterEscapes.Backslash;
+                    case 'a': return ParseCharacterEscape(CharacterEscapes.Bell);
+                    case 't': return ParseCharacterEscape(CharacterEscapes.Tab);
+                    case 'r': return ParseCharacterEscape(CharacterEscapes.CarriageReturn);
+                    case 'v': return ParseCharacterEscape(CharacterEscapes.VerticalTab);
+                    case 'f': return ParseCharacterEscape(CharacterEscapes.FormFeed);
+                    case 'n': return ParseCharacterEscape(CharacterEscapes.NewLine);
+                    case 'e': return ParseCharacterEscape(CharacterEscapes.Escape);
+                    case '.': return ParseCharacterEscape(CharacterEscapes.Period);
+                    case '$': return ParseCharacterEscape(CharacterEscapes.Dollar);
+                    case '^': return ParseCharacterEscape(CharacterEscapes.Carot);
+                    case '{': return ParseCharacterEscape(CharacterEscapes.LeftCurlyBrace);
+                    case '[': return ParseCharacterEscape(CharacterEscapes.LeftSquareBracket);
+                    case '(': return ParseCharacterEscape(CharacterEscapes.LeftParenthesis);
+                    case '|': return ParseCharacterEscape(CharacterEscapes.Pipe);
+                    case ')': return ParseCharacterEscape(CharacterEscapes.RightParenthesis);
+                    case '*': return ParseCharacterEscape(CharacterEscapes.Asterisk);
+                    case '+': return ParseCharacterEscape(CharacterEscapes.Plus);
+                    case '?': return ParseCharacterEscape(CharacterEscapes.QuestionMark);
+                    case '\\': return ParseCharacterEscape(CharacterEscapes.Backslash);
                     case 'x': return ParseHexidecimalEscape();
                     case 'c': return ParseControlCharacterEscape();
                     case 'u': return ParseUnicodeCharacterEscape();
@@ -166,8 +166,15 @@ namespace RegexUp
                     case '8':
                     case '9':
                         return ParseOctalEscapeOrNumberedBackreference();
-                    default: return CharacterEscapes.For(nextChar);
+                    default: return ParseCharacterEscape(CharacterEscapes.For(nextChar));
                 }
+            }
+
+            private IExpression ParseCharacterEscape(IExpression current)
+            {
+                ++index;
+                current = Quantify(current);
+                return current;
             }
 
             private IExpression ParseHexidecimalEscape()
@@ -175,7 +182,7 @@ namespace RegexUp
                 ++index; // swallow 'x'
                 int endIndex = GetHexidecimalNumberEndIndex(Math.Min(index + 2, regex.Length));
                 string numberString = regex.Substring(index, endIndex - index);
-                index = endIndex - 1;
+                index = endIndex; // swallow hex number
                 return CharacterEscapes.Hexidecimal(numberString);
             }
 
@@ -183,6 +190,7 @@ namespace RegexUp
             {
                 ++index; // swallow 'c'
                 char controlCharacter = regex[index];
+                ++index; // swallow control character
                 return CharacterEscapes.ControlCharacter(controlCharacter);
             }
 
@@ -191,7 +199,7 @@ namespace RegexUp
                 ++index; // swallow 'u'
                 int endIndex = GetHexidecimalNumberEndIndex(Math.Min(index + 4, regex.Length));
                 string numberString = regex.Substring(index, endIndex - index);
-                index = endIndex - 1;
+                index = endIndex; // swallow code
                 return CharacterEscapes.Unicode(numberString);
             }
 
@@ -203,15 +211,15 @@ namespace RegexUp
                 ++index; // swallow opening char
                 int endIndex = regex.IndexOf(closingChar, index);
                 string name = regex.Substring(index, endIndex - index);
-                index = endIndex;
+                index = endIndex + 1;  // swallow closing char
                 return Backreference.For(name, useQuotes);
             }
 
             private IExpression ParseOctalEscapeOrNumberedBackreference()
             {
-                int endIndex = GetNumberEndIndex(regex.Length);
+                int endIndex = GetNumberEndIndex();
                 string numberString = regex.Substring(index, endIndex - index);
-                index = endIndex - 1;
+                index = endIndex; // swallow number
                 int number = Int32.Parse(numberString);
                 if (number >= 1 && number <= 9)
                 {
@@ -238,29 +246,38 @@ namespace RegexUp
 
             private IExpression ParseUnicodeCategory(bool isPositive)
             {
-                index += 2; // swallow {
+                ++index; // swallow 'p' or 'P'
+                if (regex[index] != '{')
+                {
+                    return CharacterEscapes.For('p');
+                }
+                ++index; // swallow {
                 int endIndex = regex.IndexOf('}', index);
+                if (endIndex == -1)
+                {
+                    // The Regex constructor should prevent this from happening.
+                    throw new InvalidOperationException();
+                }
                 string category = regex.Substring(index, endIndex - index);
-                index = endIndex;
+                index = endIndex + 1; // swallow category and '}'
                 return new UnicodeCategory($@"\{(isPositive ? 'p' : 'P')}{{{category}}}");
             }
 
             private IExpression ParseCharacterGroup()
             {
                 IExpression current = ParseCharacterGroupInternal();
-                ++index;
                 current = Quantify(current);
                 return current;
             }
 
             private ICharacterGroup ParseCharacterGroupInternal()
             {
-                ++index;
+                ++index; // swallow '['
                 var members = new List<ICharacterGroupMember>();
                 bool isNegated = regex[index] == '^';
                 if (isNegated)
                 {
-                    ++index;
+                    ++index; // swallow '^'
                 }
                 bool isDone = false;
                 ICharacterGroup exclusions = null;
@@ -271,14 +288,20 @@ namespace RegexUp
                     {
                         case ']':
                             isDone = true;
+                            ++index; // swallow ']'
                             break;
                         case '-':
-                            if (regex[index + 1] == '[')
+                            ++index; // swallow '-'
+                            if (index == regex.Length)
                             {
-                                ++index; // swallow the '-'
+                                // The Regex constructor should prevent this
+                                throw new InvalidOperationException();
+                            }
+                            else if (regex[index] == '[')
+                            {
                                 exclusions = ParseCharacterGroupInternal();
                             }
-                            else if (members.Count == 0 || regex[index + 1] == ']')
+                            else if (members.Count == 0 || regex[index] == ']')
                             {
                                 // If '-' is the first or last character, add it literally
                                 members.Add(Literal.For('-'));
@@ -290,12 +313,10 @@ namespace RegexUp
                                 members.RemoveAt(members.Count - 1);
                                 members.Add(range);
                             }
-                            ++index;
                             break;
                         default:                            
                             var member = ParseCharacterGroupMember();
                             members.Add(member);
-                            ++index;
                             break;
                     }
                 }
@@ -305,7 +326,6 @@ namespace RegexUp
 
             private ICharacterGroupMember ParseRange(ICharacterGroupMember startLiteral)
             {
-                ++index; // swallow '-'
                 var lastLiteral = ParseCharacterGroupMember();
                 return Range.For(startLiteral, lastLiteral);
             }
@@ -315,16 +335,25 @@ namespace RegexUp
                 char nextChar = regex[index];
                 switch (nextChar)
                 {
-                    case '\\': return (ICharacterGroupMember)ParseEscapeSequenceInternal(ExpressionContext.CharacterGroup);
-                    default: return Literal.For(nextChar);
+                    case '\\':
+                        return (ICharacterGroupMember)ParseEscapeSequenceInternal(ExpressionContext.CharacterGroup);
+                    default:
+                        ++index;
+                        return Literal.For(nextChar);
                 }
             }
 
             private IExpression ParseGroup()
             {
-                options.Push(options.Peek());
+                ++index; // swallow '('
+                options.Push(options.Peek()); // Copy current options
                 IExpression current = ParseGroupInternal();
                 options.Pop();
+                if (index == regex.Length || regex[index] != ')')
+                {
+                    // The Regex constructor should prevent this
+                    throw new InvalidOperationException();
+                }
                 ++index; // swallow ')'
                 current = Quantify(current);
                 return current;
@@ -332,18 +361,17 @@ namespace RegexUp
 
             private IExpression ParseGroupInternal()
             {
-                ++index; // swallow '('
                 char nextChar = regex[index];
                 switch (nextChar)
                 {
                     case '?': return ParseSpecialGroup();
-                    default: return ParseCaptureGroupOrBalanceGroup(null, false);
+                    default: return ParseCaptureGroup(null, false);
                 }
             }
 
             private IExpression ParseSpecialGroup()
             {
-                ++index;
+                ++index; // swallow '?'
                 char nextChar = regex[index];
                 switch (nextChar)
                 {
@@ -366,24 +394,26 @@ namespace RegexUp
                 }
             }
 
+            private IGroup ParseCaptureGroup(string name, bool useQuotes)
+            {
+                RegisterGroupName(name);
+                var options = new CaptureGroupOptions() { Name = name, UseQuotes = useQuotes };
+                var item = Parse();
+                return CaptureGroup.Of(options, item);
+            }
+
             private IGroup ParseCaptureGroupOrBalanceGroup(string name, bool useQuotes)
             {
-                var names = name?.Split(new[] { '-' }, 2);
-                if (name == null || names.Length == 1)
+                var names = name.Split(new[] { '-' }, 2);
+                if (names.Length == 1)
                 {
-                    RegisterGroupName(name);
-                    var options = new CaptureGroupOptions() { Name = name, UseQuotes = useQuotes };
-                    var item = Parse();
-                    return CaptureGroup.Of(options, item);
+                    return ParseCaptureGroup(name, useQuotes);
                 }
-                else
-                {
-                    var (current, previous) = (names[0], names[1]);
-                    RegisterGroupName(current);
-                    var options = new BalanceGroupOptions() { UseQuotes = useQuotes };
-                    var item = Parse();
-                    return BalancedGroup.Of(current, previous, options, item);
-                }
+                var (current, previous) = (names[0], names[1]);
+                RegisterGroupName(current);
+                var options = new BalanceGroupOptions() { UseQuotes = useQuotes };
+                var item = Parse();
+                return BalancedGroup.Of(current, previous, options, item);
             }
 
             private void RegisterGroupName(string name)
@@ -398,7 +428,12 @@ namespace RegexUp
 
             private string ParseCaptureGroupName(char closingChar, int startIndex)
             {
-                int endIndex = regex.IndexOf(closingChar, startIndex);
+                int endIndex = regex.IndexOf(closingChar, Math.Min(startIndex, regex.Length));
+                if (endIndex == -1)
+                {
+                    // The Regex constructor should prevent this
+                    throw new InvalidOperationException();
+                }
                 var name = regex.Substring(startIndex, endIndex - startIndex);
                 index = endIndex + 1; // swallow the closing char
                 return name;
@@ -454,20 +489,30 @@ namespace RegexUp
             private IExpression ParseOptions()
             {
                 var enabled = GroupRegexOptions.None;
-                while (regex[index] != '-' && regex[index] != ':' && regex[index] != ')')
+                while (index != regex.Length && TryGetOption(out var option))
                 {
-                    enabled |= GetOption();
+                    enabled |= option;
                     ++index;
                 }
+                if (index == regex.Length || (regex[index] != '-' && regex[index] != ':' && regex[index] != ')'))
+                {
+                    // The Regex constructor should prevent this
+                    throw new InvalidOperationException();
+                }
+                var disabled = GroupRegexOptions.None;
                 if (regex[index] == '-')
                 {
                     ++index;
-                }
-                var disabled = GroupRegexOptions.None;
-                while (regex[index] != ':' && regex[index] != ')')
-                {
-                    disabled |= GetOption();
-                    ++index;
+                    while (index != regex.Length && TryGetOption(out var option))
+                    {
+                        disabled |= option;
+                        ++index;
+                    }
+                    if (index == regex.Length || (regex[index] != ':' && regex[index] != ')'))
+                    {
+                        // The Regex constructor should prevent this
+                        throw new InvalidOperationException();
+                    }
                 }
                 var currentOptions = options.Pop();
                 currentOptions |= enabled;
@@ -485,17 +530,29 @@ namespace RegexUp
                 }
             }
 
-            private GroupRegexOptions GetOption()
+            private bool TryGetOption(out GroupRegexOptions option)
             {
                 char nextChar = regex[index];
                 switch (nextChar)
                 {
-                    case 'i': return GroupRegexOptions.IgnoreCase;
-                    case 'm': return GroupRegexOptions.Multiline;
-                    case 'n': return GroupRegexOptions.ExplicitCapture;
-                    case 's': return GroupRegexOptions.Singleline;
-                    case 'x': return GroupRegexOptions.IgnorePatternWhitespace;
-                    default: throw new InvalidOperationException();
+                    case 'i':
+                        option = GroupRegexOptions.IgnoreCase;
+                        return true;
+                    case 'm':
+                        option = GroupRegexOptions.Multiline;
+                        return true;
+                    case 'n':
+                        option = GroupRegexOptions.ExplicitCapture;
+                        return true;
+                    case 's':
+                        option = GroupRegexOptions.Singleline;
+                        return true;
+                    case 'x':
+                        option = GroupRegexOptions.IgnorePatternWhitespace;
+                        return true;
+                    default:
+                        option = GroupRegexOptions.None;
+                        return false;
                 }
             }
 
@@ -510,6 +567,11 @@ namespace RegexUp
             {
                 ++index; // swallow '('
                 var expressionOrName = Parse();
+                if (index == regex.Length || regex[index] != ')')
+                {
+                    // The Regex constructor should prevent this
+                    throw new InvalidOperationException();
+                }
                 ++index; // swallow ')'
 
                 var item = Parse();
@@ -518,6 +580,11 @@ namespace RegexUp
                 IExpression no = null;
                 if (item is IAlternation alternation)
                 {
+                    if (alternation.Alternatives.Count() > 2)
+                    {
+                        // The Regex constructor should prevent this
+                        throw new InvalidOperationException();
+                    }
                     yes = alternation.Alternatives.First();
                     no = alternation.Alternatives.Skip(1).FirstOrDefault();
                 }
@@ -532,6 +599,11 @@ namespace RegexUp
             {
                 ++index; // swallow the '#'
                 int endIndex = regex.IndexOf(')', index);
+                if (endIndex == -1)
+                {
+                    // The Regex constructor should prevent this
+                    throw new InvalidOperationException();
+                }
                 var comment = regex.Substring(index, endIndex - index);
                 index = endIndex;
                 return InlineComment.For(comment);
@@ -556,6 +628,12 @@ namespace RegexUp
                 string comment = regex.Substring(index, endIndex - index);
                 index = endIndex;
                 return XModeComment.For(comment);
+            }
+
+            private IExpression ParseAlternation(IContainer container)
+            {
+                ++index; // swallow '|'
+                return container;
             }
 
             private IExpression Quantify(IExpression expression)
@@ -587,7 +665,7 @@ namespace RegexUp
 
             private IQuantifiedExpression GetQuantifier(QuantifierType type, IExpression expression)
             {
-                ++index;
+                ++index; // swallow '*', '+', '?' or '{'
                 int min = 0;
                 int? max = null;
                 if (type == QuantifierType.Explicit)
@@ -631,50 +709,60 @@ namespace RegexUp
                     ++index; // swallow the '}'
                     return ValueTuple.Create(min, min);
                 }
-                ++index; // swallow the ','
-                while (Char.IsWhiteSpace(regex[index]))
+                if (regex[index] != ',')
                 {
-                    ++index; // swallow whitespace
+                    // The Regex constructor should prevent this
+                    throw new InvalidOperationException();
                 }
+                ++index; // swallow the ','
+                SkipWhitespace();
                 if (regex[index] == '}')
                 {
                     ++index; // swallow the '}'
                     return ValueTuple.Create(min, (int?)null);
                 }
                 int max = GetQuantifierNumber();
+                if (regex[index] != '}')
+                {
+                    // The Regex constructor should prevent this
+                    throw new InvalidOperationException();
+                }
                 ++index; // swallow the '}'
                 return ValueTuple.Create(min, max);
             }
 
-            private IExpression ParseAlternation(IContainer container)
-            {
-                ++index; // swallow '|'
-                return container;
-            }
-
             private int GetQuantifierNumber()
             {
-                int endIndex = GetNumberEndIndexWithWhitespace();
+                SkipWhitespace();
+                int endIndex = GetNumberEndIndex();
                 string numberString = regex.Substring(index, endIndex - index).Trim();
-                int number = Int32.Parse(numberString);
+                if (!Int32.TryParse(numberString, out int number))
+                {
+                    // The Regex constructor should prevent this
+                    throw new InvalidOperationException();
+                }
                 index = endIndex;
+                SkipWhitespace();
                 return number;
             }
 
-            private int GetNumberEndIndexWithWhitespace()
+            private void SkipWhitespace()
             {
-                int endIndex = index;
-                while (endIndex != regex.Length && Char.IsWhiteSpace(regex[endIndex]) || Char.IsDigit(regex[endIndex]))
+                while (index != regex.Length && Char.IsWhiteSpace(regex[index]))
                 {
-                    ++endIndex;
+                    ++index; // swallow whitespace
                 }
-                return endIndex;
+                if (index == regex.Length)
+                {
+                    // The Regex constructor should prevent this
+                    throw new InvalidOperationException();
+                }
             }
 
-            private int GetNumberEndIndex(int maxIndex)
+            private int GetNumberEndIndex()
             {
                 int endIndex = index;
-                while (endIndex != maxIndex && Char.IsDigit(regex[endIndex]))
+                while (endIndex != regex.Length && IsDigit(regex[endIndex]))
                 {
                     ++endIndex;
                 }
@@ -689,6 +777,26 @@ namespace RegexUp
                     ++endIndex;
                 }
                 return endIndex;
+            }
+
+            private static bool IsDigit(char character)
+            {
+                switch (character)
+                {
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        return true;
+                    default:
+                        return false;
+                }
             }
 
             private static bool IsHexidecimalDigit(char character)
