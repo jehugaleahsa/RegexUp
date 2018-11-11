@@ -1,6 +1,6 @@
 ﻿namespace RegexUp
 {
-    internal interface IContainer : IExpression
+    internal interface IContainer
     {
         void Add(IExpression expression);
     }

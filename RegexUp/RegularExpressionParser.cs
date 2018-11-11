@@ -42,7 +42,7 @@ namespace RegexUp
                     if (regex[index] == '|')
                     {
                         ++index;
-                        alternatives.Add(expression);
+                        alternatives.Add(expression.Normalize());
                         expression = new CompoundExpression();
                     }
                     else
@@ -57,11 +57,11 @@ namespace RegexUp
                 }
                 if (alternatives.Count == 0)
                 {
-                    return expression;
+                    return expression.Normalize();
                 }
                 else
                 {
-                    alternatives.Add(expression);
+                    alternatives.Add(expression.Normalize());
                     return Alternation.From(alternatives);
                 }
             }
@@ -628,12 +628,6 @@ namespace RegexUp
                 string comment = regex.Substring(index, endIndex - index);
                 index = endIndex;
                 return XModeComment.For(comment);
-            }
-
-            private IExpression ParseAlternation(IContainer container)
-            {
-                ++index; // swallow '|'
-                return container;
             }
 
             private IExpression Quantify(IExpression expression)

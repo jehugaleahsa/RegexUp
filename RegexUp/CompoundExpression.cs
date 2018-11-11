@@ -61,7 +61,14 @@ namespace RegexUp
             }
         }
 
+        internal void Remove()
+        {
+            members.RemoveAt(members.Count - 1);
+        }
+
         void IContainer.Add(IExpression expression) => Add(expression);
+
+        public IExpression Normalize() => members.Count == 1 ? members[0] : this;
 
         bool IExpression.NeedsGroupedToQuantify() => members.Count > 1 || members[0].NeedsGroupedToQuantify();
 
