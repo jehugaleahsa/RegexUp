@@ -1,3 +1,5 @@
+> *Archived 2026-03-28*: This project is very old. It was an interesting experiment, but it never gained any popularity. I am glad to see more languages have begun to separate out the parsing and execution phases of regular expressions. My next hope for future generations is that regular expressions can begin being compiled at compile time, not runtime. Here's hoping.
+
 # RegexUp
 Compose, decompose and analyze regular expressions.
 
